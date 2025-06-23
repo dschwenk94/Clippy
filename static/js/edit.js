@@ -15,6 +15,13 @@ class EditPage {
             3: '#00FF88'  // Green
         };
         
+        // End Screen settings
+        this.endScreenEnabled = false;
+        this.endScreenText = 'SUBSCRIBE';
+        this.endScreenDuration = 3.0;
+        this.endScreenPosition = 'middle';
+        this.endScreenColor = '#FF4500';
+        
         console.log('EditPage initialized with:', {
             jobId: this.jobId,
             clipData: this.clipData
@@ -334,6 +341,9 @@ class EditPage {
             });
         });
 
+        // End Screen controls
+        this.initializeEndScreenControls();
+        
         // Warn about unsaved changes
         window.addEventListener('beforeunload', (e) => {
             if (this.hasUnsavedChanges) {
@@ -341,6 +351,53 @@ class EditPage {
                 e.returnValue = '';
             }
         });
+    }
+    
+    initializeEndScreenControls() {
+        const enableCheckbox = document.getElementById('end-screen-enabled');
+        const settingsDiv = document.getElementById('end-screen-settings');
+        const durationSlider = document.getElementById('end-screen-duration');
+        const durationValue = document.getElementById('duration-value');
+        const textArea = document.getElementById('end-screen-text');
+        const positionSelect = document.getElementById('end-screen-position');
+        const colorSelect = document.getElementById('end-screen-color');
+        
+        // Enable/disable toggle
+        enableCheckbox?.addEventListener('change', (e) => {
+            this.endScreenEnabled = e.target.checked;
+            settingsDiv.classList.toggle('hidden', !this.endScreenEnabled);
+            this.hasUnsavedChanges = true;
+        });
+        
+        // Duration slider
+        durationSlider?.addEventListener('input', (e) => {
+            this.endScreenDuration = parseFloat(e.target.value);
+            durationValue.textContent = `${this.endScreenDuration.toFixed(1)}s`;
+            this.hasUnsavedChanges = true;
+        });
+        
+        // Text input
+        textArea?.addEventListener('input', (e) => {
+            this.endScreenText = e.target.value;
+            this.hasUnsavedChanges = true;
+        });
+        
+        // Position select
+        positionSelect?.addEventListener('change', (e) => {
+            this.endScreenPosition = e.target.value;
+            this.hasUnsavedChanges = true;
+        });
+        
+        // Color select
+        colorSelect?.addEventListener('change', (e) => {
+            this.endScreenColor = e.target.value;
+            // Update color preview
+            colorSelect.setAttribute('value', e.target.value);
+            this.hasUnsavedChanges = true;
+        });
+        
+        // Initialize color preview
+        colorSelect?.setAttribute('value', this.endScreenColor);
     }
 
     getSpeakerNumber(speakerName) {
@@ -424,7 +481,14 @@ class EditPage {
                     job_id: this.jobId,
                     captions: updatedCaptions,
                     caption_position: this.captionPosition,
-                    speaker_colors: this.speakerColors
+                    speaker_colors: this.speakerColors,
+                    end_screen: {
+                        enabled: this.endScreenEnabled,
+                        text: this.endScreenText,
+                        duration: this.endScreenDuration,
+                        position: this.endScreenPosition,
+                        color: this.endScreenColor
+                    }
                 })
             });
 
@@ -1039,6 +1103,141 @@ const editPageStyles = `
 
 .color-select[value="#FF1493"] {
     border-color: #FF1493 !important;
+}
+
+.color-select[value="#FFFFFF"] {
+    border-color: #FFFFFF !important;
+}
+
+.color-select[value="#FFFFFF"]::before {
+    background-color: #FFFFFF;
+    border: 1px solid var(--color-border);
+}
+
+/* End Screen Controls */
+.end-screen-controls {
+    background: var(--color-surface-overlay);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    border: 1px solid var(--color-border);
+}
+
+.end-screen-controls h3 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+}
+
+.section-description {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-md);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    cursor: pointer;
+    font-size: var(--text-base);
+    font-weight: 500;
+}
+
+.control-checkbox {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.end-screen-settings {
+    margin-top: var(--space-lg);
+    padding-top: var(--space-lg);
+    border-top: 1px solid var(--color-border);
+}
+
+.control-textarea {
+    width: 100%;
+    padding: var(--space-sm);
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: var(--text-base);
+    line-height: 1.5;
+    resize: vertical;
+    transition: all var(--transition-base);
+    font-family: inherit;
+}
+
+.control-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    background: var(--color-surface-elevated);
+}
+
+.control-hint {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-top: var(--space-xs);
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.control-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--color-surface);
+    border-radius: 3px;
+    outline: none;
+    transition: all var(--transition-base);
+}
+
+.control-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.control-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.control-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--color-primary);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    transition: all var(--transition-base);
+}
+
+.control-slider::-moz-range-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.2);
+}
+
+.slider-value {
+    font-size: var(--text-base);
+    font-weight: 600;
+    color: var(--color-primary);
+    min-width: 45px;
+    text-align: right;
 }
 
 /* Edit Actions */

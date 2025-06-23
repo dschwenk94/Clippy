@@ -528,6 +528,7 @@ def update_captions():
     captions = data.get('captions', [])
     caption_position = data.get('caption_position', 'bottom')
     speaker_colors = data.get('speaker_colors', {})
+    end_screen = data.get('end_screen', {})
     
     if job_id not in active_jobs:
         return jsonify({'error': 'Job not found'}), 404
@@ -926,7 +927,8 @@ def regenerate_video_background_ass(job_id, updated_captions, caption_position='
             updated_captions, 
             video_duration,
             caption_position,
-            speaker_colors
+            speaker_colors,
+            end_screen
         )
         
         if not success:

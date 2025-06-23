@@ -36,7 +36,7 @@ class ASSCaptionUpdateSystemV6:
             'oh my god', 'what the hell', 'holy shit', 'no way'
         ]
     
-    def update_ass_file_with_edits(self, original_ass_path: str, updated_captions: List[Dict], output_path: str = None, video_duration: float = 30.0, caption_position: str = 'bottom') -> bool:
+    def update_ass_file_with_edits(self, original_ass_path: str, updated_captions: List[Dict], output_path: str = None, video_duration: float = 30.0, caption_position: str = 'bottom', speaker_colors: Dict = None, end_screen: Dict = None) -> bool:
         """Update ASS file PRESERVING ORIGINAL SPEECH TIMING"""
         try:
             if output_path is None:
@@ -44,6 +44,12 @@ class ASSCaptionUpdateSystemV6:
             
             print(f"🎤 SPEECH SYNC ASS UPDATE: Processing {len(updated_captions)} captions...")
             print(f"🎯 PRIORITY: Preserve original speech timing for perfect sync")
+            
+            # Update speaker colors if provided
+            if speaker_colors:
+                for speaker_num, color in speaker_colors.items():
+                    speaker_key = f"Speaker {speaker_num}"
+                    self.speaker_colors[speaker_key] = color
             
             # CRITICAL: Extract original speech timing data
             original_timings = self.extract_original_speech_timing(original_ass_path)
@@ -64,7 +70,7 @@ class ASSCaptionUpdateSystemV6:
             speech_synced_captions = self.apply_original_speech_timing(sorted_captions, original_timings)
             
             # Create ASS file with speech-synced timing and position
-            new_ass_content = self.create_speech_synced_ass_file(speech_synced_captions, caption_position)
+            new_ass_content = self.create_speech_synced_ass_file(speech_synced_captions, caption_position, video_duration, end_screen)
             
             # Write the new file
             with open(output_path, 'w', encoding='utf-8') as f:
@@ -266,17 +272,22 @@ class ASSCaptionUpdateSystemV6:
         
         return adjusted_captions
     
-    def create_speech_synced_ass_file(self, captions: List[Dict], caption_position: str = 'bottom') -> str:
+    def create_speech_synced_ass_file(self, captions: List[Dict], caption_position: str = 'bottom', video_duration: float = 30.0, end_screen: Dict = None) -> str:
         """Create ASS file with speech-synced timing and position"""
         
         # Get unique speakers
         unique_speakers = set(cap.get('speaker', 'Speaker 1') for cap in captions)
         
         # Create styles section with position
-        styles_section = self.create_styles_section(unique_speakers, caption_position)
+        styles_section = self.create_styles_section(unique_speakers, caption_position, end_screen)
         
         # Create dialogue section with speech-synced timing
         dialogue_section = self.create_dialogue_section(captions)
+        
+        # Add end screen if enabled
+        if end_screen and end_screen.get('enabled'):
+            end_screen_dialogue = self.create_end_screen_dialogue(video_duration, end_screen)
+            dialogue_section += "\n" + end_screen_dialogue
         
         # Assemble complete ASS file
         ass_content = f"""[Script Info]
@@ -293,7 +304,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         
         return ass_content
     
-    def create_styles_section(self, speakers: set, caption_position: str = 'bottom') -> str:
+    def create_styles_section(self, speakers: set, caption_position: str = 'bottom', end_screen: Dict = None) -> str:
         """Create styles section for all speakers with position"""
         styles = []
         
@@ -312,6 +323,24 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             # Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
             style_line = f"Style: {speaker},Arial Black,22,{ass_color},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,3,1,2,30,30,{margin_v},1"
             styles.append(style_line)
+        
+        # Add end screen style if enabled
+        if end_screen and end_screen.get('enabled'):
+            end_color = end_screen.get('color', '#FF4500')
+            end_ass_color = self.hex_to_ass_color(end_color)
+            
+            # Determine end screen position
+            end_position = end_screen.get('position', 'middle')
+            if end_position == 'top':
+                end_margin_v = 250  # Higher than captions
+            elif end_position == 'bottom':
+                end_margin_v = 100  # Lower than captions
+            else:  # middle
+                end_margin_v = 180  # Center of screen
+            
+            # Larger, bold Impact font for end screen with outline
+            end_style = f"Style: EndScreen,Impact,36,{end_ass_color},&H000000FF,&H00000000,&HFF000000,1,0,0,0,100,100,0,0,1,4,2,2,30,30,{end_margin_v},1"
+            styles.append(end_style)
         
         return "\n".join(styles)
     
@@ -337,6 +366,39 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         
         print(f"📝 Created {len(dialogue_lines)} speech-synced dialogue lines")
         return "\n".join(dialogue_lines)
+    
+    def create_end_screen_dialogue(self, video_duration: float, end_screen: Dict) -> str:
+        """Create end screen dialogue with animation"""
+        text = end_screen.get('text', 'SUBSCRIBE')
+        duration = float(end_screen.get('duration', 3.0))
+        position = end_screen.get('position', 'middle')
+        
+        # Calculate timing
+        start_time = max(0, video_duration - duration)
+        end_time = video_duration
+        
+        # Convert times to ASS format
+        start_ass = self.seconds_to_ass_time(start_time)
+        end_ass = self.seconds_to_ass_time(end_time)
+        
+        # Create animation effect based on position
+        if position == 'top':
+            # Slide down from top with pulse
+            effect = "move(640,-50,640,250,0,500)\\fscx120\\fscy120\\t(500,1000,\\fscx100\\fscy100)\\t(1000,1500,\\fscx110\\fscy110)\\t(1500,2000,\\fscx100\\fscy100)"
+        elif position == 'bottom':
+            # Slide up from bottom with pulse
+            effect = "move(640,450,640,100,0,500)\\fscx120\\fscy120\\t(500,1000,\\fscx100\\fscy100)\\t(1000,1500,\\fscx110\\fscy110)\\t(1500,2000,\\fscx100\\fscy100)"
+        else:  # middle
+            # Zoom in with pulse effect
+            effect = "fscx0\\fscy0\\t(0,300,\\fscx120\\fscy120)\\t(300,500,\\fscx100\\fscy100)\\t(1000,1500,\\fscx110\\fscy110)\\t(1500,2000,\\fscx100\\fscy100)"
+        
+        # Format text with line breaks if needed
+        formatted_text = text.replace('\\n', '\\N')
+        
+        # Create dialogue line with effects
+        dialogue = f"Dialogue: 0,{start_ass},{end_ass},EndScreen,,0,0,0,,{{\\an5\\{effect}}}{formatted_text}"
+        
+        return dialogue
     
     def format_caption_text(self, text: str, speaker: str) -> str:
         """Format caption text with speaker color and effects"""
