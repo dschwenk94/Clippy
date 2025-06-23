@@ -53,6 +53,58 @@
                 <p class="panel-description">Click to edit text or change speakers</p>
             </div>
             
+            <!-- Caption Controls Section -->
+            <div class="caption-controls">
+                <h3>Caption Settings</h3>
+                
+                <div class="control-group">
+                    <label for="caption-position">Caption Position</label>
+                    <select id="caption-position" class="control-select">
+                        <option value="top">Top</option>
+                        <option value="middle">Middle</option>
+                        <option value="bottom" selected>Bottom</option>
+                    </select>
+                </div>
+                
+                <div class="speaker-colors">
+                    <h4>Speaker Colors</h4>
+                    <div class="color-selectors">
+                        <div class="color-control">
+                            <label for="speaker-1-color">Speaker 1</label>
+                            <select id="speaker-1-color" class="control-select color-select" data-speaker="1">
+                                <option value="#FF4500" selected data-color="#FF4500">Red</option>
+                                <option value="#00BFFF" data-color="#00BFFF">Blue</option>
+                                <option value="#FFD700" data-color="#FFD700">Yellow</option>
+                                <option value="#00FF88" data-color="#00FF88">Green</option>
+                                <option value="#FF1493" data-color="#FF1493">Pink</option>
+                            </select>
+                        </div>
+                        
+                        <div class="color-control">
+                            <label for="speaker-2-color">Speaker 2</label>
+                            <select id="speaker-2-color" class="control-select color-select" data-speaker="2">
+                                <option value="#FF4500" data-color="#FF4500">Red</option>
+                                <option value="#00BFFF" selected data-color="#00BFFF">Blue</option>
+                                <option value="#FFD700" data-color="#FFD700">Yellow</option>
+                                <option value="#00FF88" data-color="#00FF88">Green</option>
+                                <option value="#FF1493" data-color="#FF1493">Pink</option>
+                            </select>
+                        </div>
+                        
+                        <div class="color-control">
+                            <label for="speaker-3-color">Speaker 3</label>
+                            <select id="speaker-3-color" class="control-select color-select" data-speaker="3">
+                                <option value="#FF4500" data-color="#FF4500">Red</option>
+                                <option value="#00BFFF" data-color="#00BFFF">Blue</option>
+                                <option value="#FFD700" data-color="#FFD700">Yellow</option>
+                                <option value="#00FF88" selected data-color="#00FF88">Green</option>
+                                <option value="#FF1493" data-color="#FF1493">Pink</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="caption-editor" id="captions-editor">
                 <!-- Captions will be loaded here -->
             </div>

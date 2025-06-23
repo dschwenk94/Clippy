@@ -502,15 +502,23 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             print(f"❌ Error generating ASS file: {e}")
             return False
     
-    def update_captions_ass(self, subtitle_path: str, updated_captions: List[Dict], duration: float = 30.0) -> bool:
+    def update_captions_ass(self, subtitle_path: str, updated_captions: List[Dict], duration: float = 30.0, 
+                          caption_position: str = 'bottom', speaker_colors: Dict = None) -> bool:
         """
         🆕 Update ASS captions with edited text and speaker assignments
         Maintains proper speaker colors in pop-out effects and video duration
         """
         try:
             print(f"🔄 Updating ASS captions for {duration:.1f}s video...")
+            
+            # Update caption system with custom colors if provided
+            if speaker_colors:
+                for speaker_num, color in speaker_colors.items():
+                    speaker_key = f"Speaker {speaker_num}"
+                    self.caption_updater.speaker_colors[speaker_key] = color
+            
             return self.caption_updater.update_ass_file_with_edits(
-                subtitle_path, updated_captions, None, duration
+                subtitle_path, updated_captions, None, duration, caption_position
             )
         except Exception as e:
             print(f"❌ Error updating ASS captions: {e}")

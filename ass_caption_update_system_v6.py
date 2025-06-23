@@ -36,7 +36,7 @@ class ASSCaptionUpdateSystemV6:
             'oh my god', 'what the hell', 'holy shit', 'no way'
         ]
     
-    def update_ass_file_with_edits(self, original_ass_path: str, updated_captions: List[Dict], output_path: str = None, video_duration: float = 30.0) -> bool:
+    def update_ass_file_with_edits(self, original_ass_path: str, updated_captions: List[Dict], output_path: str = None, video_duration: float = 30.0, caption_position: str = 'bottom') -> bool:
         """Update ASS file PRESERVING ORIGINAL SPEECH TIMING"""
         try:
             if output_path is None:
@@ -63,8 +63,8 @@ class ASSCaptionUpdateSystemV6:
             # PRIORITY: Use original speech timing whenever possible
             speech_synced_captions = self.apply_original_speech_timing(sorted_captions, original_timings)
             
-            # Create ASS file with speech-synced timing
-            new_ass_content = self.create_speech_synced_ass_file(speech_synced_captions)
+            # Create ASS file with speech-synced timing and position
+            new_ass_content = self.create_speech_synced_ass_file(speech_synced_captions, caption_position)
             
             # Write the new file
             with open(output_path, 'w', encoding='utf-8') as f:
@@ -266,14 +266,14 @@ class ASSCaptionUpdateSystemV6:
         
         return adjusted_captions
     
-    def create_speech_synced_ass_file(self, captions: List[Dict]) -> str:
-        """Create ASS file with speech-synced timing"""
+    def create_speech_synced_ass_file(self, captions: List[Dict], caption_position: str = 'bottom') -> str:
+        """Create ASS file with speech-synced timing and position"""
         
         # Get unique speakers
         unique_speakers = set(cap.get('speaker', 'Speaker 1') for cap in captions)
         
-        # Create styles section
-        styles_section = self.create_styles_section(unique_speakers)
+        # Create styles section with position
+        styles_section = self.create_styles_section(unique_speakers, caption_position)
         
         # Create dialogue section with speech-synced timing
         dialogue_section = self.create_dialogue_section(captions)
@@ -293,14 +293,24 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         
         return ass_content
     
-    def create_styles_section(self, speakers: set) -> str:
-        """Create styles section for all speakers"""
+    def create_styles_section(self, speakers: set, caption_position: str = 'bottom') -> str:
+        """Create styles section for all speakers with position"""
         styles = []
+        
+        # Determine vertical margin based on position
+        # MarginV controls vertical position (higher number = higher on screen)
+        if caption_position == 'top':
+            margin_v = 200  # Offset from top (similar to bottom offset)
+        elif caption_position == 'middle':
+            margin_v = 150  # Middle of screen
+        else:  # bottom (default)
+            margin_v = 50   # Current bottom position
         
         for speaker in speakers:
             color = self.speaker_colors.get(speaker, "#FFFFFF")
             ass_color = self.hex_to_ass_color(color)
-            style_line = f"Style: {speaker},Arial Black,22,{ass_color},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,3,1,2,30,30,50,1"
+            # Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+            style_line = f"Style: {speaker},Arial Black,22,{ass_color},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,3,1,2,30,30,{margin_v},1"
             styles.append(style_line)
         
         return "\n".join(styles)

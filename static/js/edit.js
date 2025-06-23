@@ -7,6 +7,14 @@ class EditPage {
         this.socket = null;
         this.hasUnsavedChanges = false;
         
+        // Caption settings
+        this.captionPosition = 'bottom';
+        this.speakerColors = {
+            1: '#FF4500', // Red
+            2: '#00BFFF', // Blue  
+            3: '#00FF88'  // Green
+        };
+        
         console.log('EditPage initialized with:', {
             jobId: this.jobId,
             clipData: this.clipData
@@ -24,6 +32,7 @@ class EditPage {
         this.loadVideo();
         this.loadCaptions();
         this.initializeEventListeners();
+        this.initializeColorPreviews();
     }
 
     initializeSocket() {
@@ -233,11 +242,13 @@ class EditPage {
         captions.forEach((caption, index) => {
             const speakerNum = this.getSpeakerNumber(caption.speaker);
             const speakerClass = `speaker-${speakerNum}`;
+            const speakerColor = this.speakerColors[speakerNum];
             
             html += `
                 <div class="caption-item" data-index="${index}">
                     <div class="caption-header">
-                        <select class="speaker-selector ${speakerClass}" data-index="${index}">
+                        <select class="speaker-selector ${speakerClass}" data-index="${index}" 
+                                style="border-color: ${speakerColor}; color: ${speakerColor}">
                             <option value="1" ${speakerNum === 1 ? 'selected' : ''}>Speaker 1</option>
                             <option value="2" ${speakerNum === 2 ? 'selected' : ''}>Speaker 2</option>
                             <option value="3" ${speakerNum === 3 ? 'selected' : ''}>Speaker 3</option>
@@ -282,6 +293,15 @@ class EditPage {
         });
     }
 
+    initializeColorPreviews() {
+        // Initialize color dots for all color selectors
+        document.querySelectorAll('.color-select').forEach(select => {
+            const selectedOption = select.options[select.selectedIndex];
+            const color = selectedOption.value;
+            select.setAttribute('value', color);
+        });
+    }
+    
     initializeEventListeners() {
         // Toggle captions button
         document.getElementById('toggle-captions')?.addEventListener('click', () => {
@@ -296,6 +316,22 @@ class EditPage {
         // Continue button
         document.getElementById('continue-btn').addEventListener('click', () => {
             this.continueToUpload();
+        });
+        
+        // Caption position selector
+        document.getElementById('caption-position')?.addEventListener('change', (e) => {
+            this.captionPosition = e.target.value;
+            this.hasUnsavedChanges = true;
+        });
+        
+        // Color selectors
+        document.querySelectorAll('.color-select').forEach(select => {
+            select.addEventListener('change', (e) => {
+                const speaker = parseInt(e.target.dataset.speaker);
+                const color = e.target.value;
+                this.updateSpeakerColor(speaker, color);
+                this.hasUnsavedChanges = true;
+            });
         });
 
         // Warn about unsaved changes
@@ -317,8 +353,31 @@ class EditPage {
         const select = event.target;
         const newSpeakerNum = parseInt(select.value);
         
-        // Update visual style
+        // Update visual style with custom color
+        const color = this.speakerColors[newSpeakerNum];
         select.className = `speaker-selector speaker-${newSpeakerNum}`;
+        select.style.borderColor = color;
+        select.style.color = color;
+    }
+    
+    updateSpeakerColor(speaker, color) {
+        this.speakerColors[speaker] = color;
+        
+        // Update all speaker selectors with this speaker number
+        document.querySelectorAll(`.speaker-selector`).forEach(select => {
+            if (parseInt(select.value) === speaker) {
+                select.style.borderColor = color;
+                select.style.color = color;
+            }
+        });
+        
+        // Update the visual preview of the color dropdown
+        const colorSelect = document.querySelector(`#speaker-${speaker}-color`);
+        if (colorSelect) {
+            colorSelect.style.borderColor = color;
+            // Update the color dot by changing the select value attribute for CSS
+            colorSelect.setAttribute('value', color);
+        }
     }
 
     toggleCaptions() {
@@ -363,7 +422,9 @@ class EditPage {
                 },
                 body: JSON.stringify({
                     job_id: this.jobId,
-                    captions: updatedCaptions
+                    captions: updatedCaptions,
+                    caption_position: this.captionPosition,
+                    speaker_colors: this.speakerColors
                 })
             });
 
@@ -842,6 +903,144 @@ const editPageStyles = `
     margin: var(--space-sm) 0;
 }
 
+/* Caption Controls */
+.caption-controls {
+    background: var(--color-surface-overlay);
+    border-radius: var(--radius-lg);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-lg);
+    border: 1px solid var(--color-border);
+}
+
+.caption-controls h3 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+}
+
+.control-group {
+    margin-bottom: var(--space-lg);
+}
+
+.control-group label {
+    display: block;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-xs);
+}
+
+.control-select {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-surface);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text-primary);
+    font-size: var(--text-base);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.control-select:hover {
+    border-color: var(--color-primary);
+}
+
+.control-select:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.speaker-colors h4 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin-bottom: var(--space-sm);
+}
+
+.color-selectors {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.color-control {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.color-control label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-text-secondary);
+}
+
+.color-select {
+    transition: all var(--transition-base);
+    padding-left: 35px;
+    position: relative;
+}
+
+/* Color dot indicator */
+.color-select::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border);
+}
+
+/* Specific color indicators */
+.color-select[value="#FF4500"]::before {
+    background-color: #FF4500;
+}
+
+.color-select[value="#00BFFF"]::before {
+    background-color: #00BFFF;
+}
+
+.color-select[value="#FFD700"]::before {
+    background-color: #FFD700;
+}
+
+.color-select[value="#00FF88"]::before {
+    background-color: #00FF88;
+}
+
+.color-select[value="#FF1493"]::before {
+    background-color: #FF1493;
+}
+
+/* Color preview for dropdowns */
+#speaker-1-color[value="#FF4500"]:checked,
+.color-select[value="#FF4500"] {
+    border-color: #FF4500 !important;
+}
+
+#speaker-2-color[value="#00BFFF"]:checked,
+.color-select[value="#00BFFF"] {
+    border-color: #00BFFF !important;
+}
+
+#speaker-3-color[value="#00FF88"]:checked,
+.color-select[value="#00FF88"] {
+    border-color: #00FF88 !important;
+}
+
+.color-select[value="#FFD700"] {
+    border-color: #FFD700 !important;
+}
+
+.color-select[value="#FF1493"] {
+    border-color: #FF1493 !important;
+}
+
 /* Edit Actions */
 .edit-actions {
     display: flex;
@@ -984,6 +1183,11 @@ const editPageStyles = `
     
     .caption-panel {
         order: 2;
+    }
+    
+    .color-selectors {
+        grid-template-columns: 1fr;
+        gap: var(--space-sm);
     }
 }
 

@@ -526,6 +526,8 @@ def update_captions():
     data = request.json
     job_id = data.get('job_id')
     captions = data.get('captions', [])
+    caption_position = data.get('caption_position', 'bottom')
+    speaker_colors = data.get('speaker_colors', {})
     
     if job_id not in active_jobs:
         return jsonify({'error': 'Job not found'}), 404
@@ -557,7 +559,7 @@ def update_captions():
         # Start background regeneration
         regeneration_thread = threading.Thread(
             target=regenerate_video_background_ass, 
-            args=(job_id, captions)
+            args=(job_id, captions, caption_position, speaker_colors)
         )
         regeneration_thread.daemon = True
         regeneration_thread.start()
@@ -877,11 +879,19 @@ def extract_captions_from_ass_fixed(ass_file_path: str):
         return []
 
 
-def regenerate_video_background_ass(job_id, updated_captions):
+def regenerate_video_background_ass(job_id, updated_captions, caption_position='bottom', speaker_colors=None):
     """Background thread for video regeneration using ASS caption system"""
     try:
         job = active_jobs[job_id]
         original_clip_data = job.clip_data
+        
+        # Default speaker colors if not provided
+        if speaker_colors is None:
+            speaker_colors = {
+                '1': '#FF4500',
+                '2': '#00BFFF',
+                '3': '#00FF88'
+            }
         
         job.regeneration_status = 'processing'
         job.regeneration_progress = 10
@@ -911,7 +921,13 @@ def regenerate_video_background_ass(job_id, updated_captions):
         
         # CRITICAL FIX: Use the video duration for proper caption distribution
         video_duration = job.duration if hasattr(job, 'duration') else 30.0
-        success = clipper.update_captions_ass(subtitle_file, updated_captions, video_duration)
+        success = clipper.update_captions_ass(
+            subtitle_file, 
+            updated_captions, 
+            video_duration,
+            caption_position,
+            speaker_colors
+        )
         
         if not success:
             raise Exception('Failed to update captions using ASS system')
