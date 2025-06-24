@@ -39,17 +39,38 @@ class ASSCaptionUpdateSystemV6:
     def update_ass_file_with_edits(self, original_ass_path: str, updated_captions: List[Dict], output_path: str = None, video_duration: float = 30.0, caption_position: str = 'bottom', speaker_colors: Dict = None, end_screen: Dict = None) -> bool:
         """Update ASS file PRESERVING ORIGINAL SPEECH TIMING"""
         try:
+            print(f"🔍 update_ass_file_with_edits called with:")
+            print(f"  - original_ass_path: {original_ass_path}")
+            print(f"  - updated_captions count: {len(updated_captions) if updated_captions else 0}")
+            print(f"  - video_duration: {video_duration}")
+            print(f"  - caption_position: {caption_position}")
+            print(f"  - speaker_colors: {speaker_colors}")
+            print(f"  - end_screen: {end_screen}")
             if output_path is None:
                 output_path = original_ass_path
+            
+            # Check if original ASS file exists
+            if original_ass_path and not os.path.exists(original_ass_path):
+                print(f"⚠️ WARNING: Original ASS file not found: {original_ass_path}")
+                print(f"🔍 Checking if it's a path issue...")
+                # Try alternative paths
+                if os.path.exists(original_ass_path.replace('_captions.ass', '_ASS_captions.ass')):
+                    original_ass_path = original_ass_path.replace('_captions.ass', '_ASS_captions.ass')
+                    print(f"✅ Found alternative path: {original_ass_path}")
             
             print(f"🎤 SPEECH SYNC ASS UPDATE: Processing {len(updated_captions)} captions...")
             print(f"🎯 PRIORITY: Preserve original speech timing for perfect sync")
             
             # Update speaker colors if provided
             if speaker_colors:
+                print(f"🎨 ASS System: Updating speaker colors...")
                 for speaker_num, color in speaker_colors.items():
-                    speaker_key = f"Speaker {speaker_num}"
+                    # Ensure speaker_num is a string for consistency
+                    speaker_num_str = str(speaker_num)
+                    speaker_key = f"Speaker {speaker_num_str}"
+                    print(f"  - Setting {speaker_key} to {color}")
                     self.speaker_colors[speaker_key] = color
+                print(f"  - Final speaker colors: {self.speaker_colors}")
             
             # CRITICAL: Extract original speech timing data
             original_timings = self.extract_original_speech_timing(original_ass_path)
@@ -70,6 +91,12 @@ class ASSCaptionUpdateSystemV6:
             speech_synced_captions = self.apply_original_speech_timing(sorted_captions, original_timings)
             
             # Create ASS file with speech-synced timing and position
+            print(f"📝 Creating ASS file with:")
+            print(f"  - Captions: {len(speech_synced_captions)}")
+            print(f"  - Position: {caption_position}")
+            print(f"  - Duration: {video_duration}")
+            print(f"  - End screen enabled: {end_screen.get('enabled') if end_screen else False}")
+            
             new_ass_content = self.create_speech_synced_ass_file(speech_synced_captions, caption_position, video_duration, end_screen)
             
             # Write the new file
@@ -393,7 +420,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             effect = "fscx0\\fscy0\\t(0,300,\\fscx120\\fscy120)\\t(300,500,\\fscx100\\fscy100)\\t(1000,1500,\\fscx110\\fscy110)\\t(1500,2000,\\fscx100\\fscy100)"
         
         # Format text with line breaks if needed
-        formatted_text = text.replace('\\n', '\\N')
+        # Handle both literal \n and actual newlines
+        formatted_text = text.replace('\\n', '\\N').replace('\n', '\\N')
         
         # Create dialogue line with effects
         dialogue = f"Dialogue: 0,{start_ass},{end_ass},EndScreen,,0,0,0,,{{\\an5\\{effect}}}{formatted_text}"

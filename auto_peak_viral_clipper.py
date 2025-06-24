@@ -510,11 +510,28 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         """
         try:
             print(f"🔄 Updating ASS captions for {duration:.1f}s video...")
+            print(f"🔍 update_captions_ass parameters:")
+            print(f"  - subtitle_path: {subtitle_path}")
+            print(f"  - captions count: {len(updated_captions)}")
+            print(f"  - duration: {duration}")
+            print(f"  - caption_position: {caption_position}")
+            print(f"  - speaker_colors: {speaker_colors}")
+            print(f"  - end_screen: {end_screen}")
+            print(f"📊 Debug - subtitle_path: {subtitle_path}")
+            print(f"📊 Debug - caption_position: {caption_position}")
+            print(f"📊 Debug - speaker_colors: {speaker_colors}")
+            print(f"📊 Debug - end_screen: {end_screen}")
+            print(f"📊 Debug - duration: {duration}")
+            print(f"📊 Debug - updated_captions count: {len(updated_captions) if updated_captions else 0}")
             
             # Update caption system with custom colors if provided
             if speaker_colors:
+                print(f"🎨 Updating speaker colors...")
                 for speaker_num, color in speaker_colors.items():
-                    speaker_key = f"Speaker {speaker_num}"
+                    # Ensure speaker_num is a string for consistency
+                    speaker_num_str = str(speaker_num)
+                    speaker_key = f"Speaker {speaker_num_str}"
+                    print(f"  - Setting {speaker_key} to {color}")
                     self.caption_updater.speaker_colors[speaker_key] = color
             
             return self.caption_updater.update_ass_file_with_edits(
@@ -528,6 +545,8 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             )
         except Exception as e:
             print(f"❌ Error updating ASS captions: {e}")
+            import traceback
+            traceback.print_exc()
             return False
     
     def create_fixed_speaker_phrase_captions(self, phrases: List[PhraseSegment], speaker_name: str) -> str:
