@@ -103,6 +103,19 @@ class ASSCaptionUpdateSystemV6:
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(new_ass_content)
             
+            # Debug: Check if end screen was written
+            if end_screen and end_screen.get('enabled'):
+                with open(output_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                    if 'EndScreen' in content:
+                        print(f"✅ End screen found in ASS file")
+                        # Find and print the end screen dialogue line
+                        for line in content.split('\n'):
+                            if 'EndScreen' in line and line.startswith('Dialogue:'):
+                                print(f"   End screen line: {line[:100]}...")
+                    else:
+                        print(f"❌ End screen NOT found in ASS file!")
+            
             # Verify speech sync
             # Account for end screen dialogue if enabled
             expected_dialogues = len(sorted_captions)
@@ -364,15 +377,20 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             # Determine end screen position
             end_position = end_screen.get('position', 'middle')
             if end_position == 'top':
-                end_margin_v = 250  # Higher than captions
+                end_margin_v = 50   # Top margin
+                alignment = 8       # Top center alignment
             elif end_position == 'bottom':
-                end_margin_v = 100  # Lower than captions
+                end_margin_v = 50   # Bottom margin
+                alignment = 2       # Bottom center alignment
             else:  # middle
-                end_margin_v = 180  # Center of screen
+                end_margin_v = 0    # No margin
+                alignment = 5       # Center alignment
             
             # Larger, bold Impact font for end screen with outline
-            end_style = f"Style: EndScreen,Impact,36,{end_ass_color},&H000000FF,&H00000000,&HFF000000,1,0,0,0,100,100,0,0,1,4,2,2,30,30,{end_margin_v},1"
+            # Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+            end_style = f"Style: EndScreen,Impact,48,{end_ass_color},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,3,2,{alignment},10,10,{end_margin_v},1"
             styles.append(end_style)
+            print(f"  - Added EndScreen style with alignment {alignment}, margin {end_margin_v}")
         
         return "\n".join(styles)
     
@@ -405,31 +423,40 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         duration = float(end_screen.get('duration', 3.0))
         position = end_screen.get('position', 'middle')
         
+        print(f"🎬 Creating end screen dialogue:")
+        print(f"   Text: {text}")
+        print(f"   Duration: {duration}s")
+        print(f"   Position: {position}")
+        print(f"   Video duration: {video_duration}s")
+        
         # Calculate timing
         start_time = max(0, video_duration - duration)
         end_time = video_duration
+        
+        print(f"   Start time: {start_time}s")
+        print(f"   End time: {end_time}s")
         
         # Convert times to ASS format
         start_ass = self.seconds_to_ass_time(start_time)
         end_ass = self.seconds_to_ass_time(end_time)
         
-        # Create animation effect based on position
-        if position == 'top':
-            # Slide down from top with pulse
-            effect = "move(640,-50,640,250,0,500)\\fscx120\\fscy120\\t(500,1000,\\fscx100\\fscy100)\\t(1000,1500,\\fscx110\\fscy110)\\t(1500,2000,\\fscx100\\fscy100)"
-        elif position == 'bottom':
-            # Slide up from bottom with pulse
-            effect = "move(640,450,640,100,0,500)\\fscx120\\fscy120\\t(500,1000,\\fscx100\\fscy100)\\t(1000,1500,\\fscx110\\fscy110)\\t(1500,2000,\\fscx100\\fscy100)"
-        else:  # middle
-            # Zoom in with pulse effect
-            effect = "fscx0\\fscy0\\t(0,300,\\fscx120\\fscy120)\\t(300,500,\\fscx100\\fscy100)\\t(1000,1500,\\fscx110\\fscy110)\\t(1500,2000,\\fscx100\\fscy100)"
+        print(f"   Start ASS: {start_ass}")
+        print(f"   End ASS: {end_ass}")
+        
+        # Create simple animation effect
+        # Remove positioning from here since it's in the style
+        effect = "\\fad(300,300)\\fscx120\\fscy120"
+        
+        print(f"   Effect: {effect}")
         
         # Format text with line breaks if needed
         # Handle both literal \n and actual newlines
         formatted_text = text.replace('\\n', '\\N').replace('\n', '\\N')
         
         # Create dialogue line with effects
-        dialogue = f"Dialogue: 0,{start_ass},{end_ass},EndScreen,,0,0,0,,{{\\an5\\{effect}}}{formatted_text}"
+        dialogue = f"Dialogue: 0,{start_ass},{end_ass},EndScreen,,0,0,0,,{{\\{effect}}}{formatted_text}"
+        
+        print(f"   Generated dialogue: {dialogue[:100]}...")
         
         return dialogue
     
