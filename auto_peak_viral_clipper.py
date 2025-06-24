@@ -518,7 +518,13 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                     self.caption_updater.speaker_colors[speaker_key] = color
             
             return self.caption_updater.update_ass_file_with_edits(
-                subtitle_path, updated_captions, None, duration, caption_position, speaker_colors, end_screen
+                original_ass_path=subtitle_path,
+                updated_captions=updated_captions,
+                output_path=None,
+                video_duration=duration,
+                caption_position=caption_position,
+                speaker_colors=speaker_colors,
+                end_screen=end_screen
             )
         except Exception as e:
             print(f"❌ Error updating ASS captions: {e}")
