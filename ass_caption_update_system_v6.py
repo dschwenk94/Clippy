@@ -425,16 +425,26 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         
         print(f"🎬 Creating end screen dialogue:")
         print(f"   Text: {text}")
-        print(f"   Duration: {duration}s")
+        print(f"   Duration from settings: {end_screen.get('duration')} (raw)")
+        print(f"   Duration as float: {duration}s")
         print(f"   Position: {position}")
         print(f"   Video duration: {video_duration}s")
+        print(f"   Full end_screen dict: {end_screen}")
         
         # Calculate timing
-        start_time = max(0, video_duration - duration)
-        end_time = video_duration
+        # Ensure we have enough time for the end screen
+        # For a 30-second video with 3-second end screen, start at 27 seconds
+        requested_start = video_duration - duration
+        start_time = max(0, requested_start)
         
-        print(f"   Start time: {start_time}s")
+        # Make sure end time gives us the full duration
+        # If video is 30s and we want 3s end screen starting at 27s, end should be 30s
+        end_time = start_time + duration
+        
+        print(f"   Requested start: {requested_start}s")
+        print(f"   Actual start: {start_time}s")
         print(f"   End time: {end_time}s")
+        print(f"   Actual duration: {end_time - start_time}s")
         
         # Convert times to ASS format
         start_ass = self.seconds_to_ass_time(start_time)
