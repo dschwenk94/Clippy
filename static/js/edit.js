@@ -1115,6 +1115,26 @@ const editPageStyles = `
 }
 
 /* End Screen Controls */
+.video-panel .end-screen-controls {
+    background: var(--color-surface-overlay);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    margin-top: var(--space-md);
+}
+
+.video-panel .end-screen-controls h3 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+}
+
+.video-panel .section-description {
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-sm);
+}
+
+/* Keep the original end-screen-controls styles for the settings */
 .end-screen-controls {
     background: var(--color-surface-overlay);
     border-radius: var(--radius-lg);
