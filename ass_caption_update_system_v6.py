@@ -411,7 +411,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             
             # Larger, bold Impact font for end screen with outline
             # Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-            end_style = f"Style: EndScreen,Impact,40,{end_ass_color},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,3,2,{alignment},10,10,{end_margin_v},1"
+            end_style = f"Style: EndScreen,Impact,28,{end_ass_color},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,3,2,{alignment},10,10,{end_margin_v},1"
             styles.append(end_style)
             print(f"  - Added EndScreen style with alignment {alignment}, margin {end_margin_v}")
         
