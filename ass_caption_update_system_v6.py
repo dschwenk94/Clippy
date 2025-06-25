@@ -90,14 +90,30 @@ class ASSCaptionUpdateSystemV6:
             # PRIORITY: Use original speech timing whenever possible
             speech_synced_captions = self.apply_original_speech_timing(sorted_captions, original_timings)
             
+            # Find the actual end time of content
+            actual_content_end = video_duration  # default
+            if speech_synced_captions:
+                last_caption = speech_synced_captions[-1]
+                if 'end_time' in last_caption:
+                    # Convert ASS time to seconds
+                    actual_content_end = self.ass_time_to_seconds(last_caption['end_time'])
+                    print(f"📌 Last caption ends at: {actual_content_end}s")
+            
             # Create ASS file with speech-synced timing and position
             print(f"📝 Creating ASS file with:")
             print(f"  - Captions: {len(speech_synced_captions)}")
             print(f"  - Position: {caption_position}")
             print(f"  - Duration: {video_duration}")
+            print(f"  - Actual content end: {actual_content_end}s")
             print(f"  - End screen enabled: {end_screen.get('enabled') if end_screen else False}")
             
-            new_ass_content = self.create_speech_synced_ass_file(speech_synced_captions, caption_position, video_duration, end_screen)
+            # Pass actual content end time for end screen positioning
+            new_ass_content = self.create_speech_synced_ass_file(
+                speech_synced_captions, 
+                caption_position, 
+                actual_content_end,  # Use actual content end instead of video_duration
+                end_screen
+            )
             
             # Write the new file
             with open(output_path, 'w', encoding='utf-8') as f:
@@ -329,6 +345,13 @@ class ASSCaptionUpdateSystemV6:
         # Create dialogue section with speech-synced timing
         dialogue_section = self.create_dialogue_section(captions)
         
+        # Store the last caption end time for end screen positioning
+        if captions:
+            last_caption = captions[-1]
+            last_end_time_str = last_caption.get('end_time', '0:00:00.00')
+            self._last_caption_end_time = self.ass_time_to_seconds(last_end_time_str)
+            print(f"📌 Stored last caption end time: {self._last_caption_end_time}s")
+        
         # Add end screen if enabled
         if end_screen and end_screen.get('enabled'):
             end_screen_dialogue = self.create_end_screen_dialogue(video_duration, end_screen)
@@ -431,20 +454,15 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         print(f"   Video duration: {video_duration}s")
         print(f"   Full end_screen dict: {end_screen}")
         
-        # Calculate timing
-        # Ensure we have enough time for the end screen
-        # For a 30-second video with 3-second end screen, start at 27 seconds
-        requested_start = video_duration - duration
-        start_time = max(0, requested_start)
+        # Calculate timing based on actual content end time
+        # For a 21-second clip with 3-second end screen, start at 18 seconds
+        start_time = max(0, video_duration - duration)
+        end_time = video_duration
         
-        # Make sure end time gives us the full duration
-        # If video is 30s and we want 3s end screen starting at 27s, end should be 30s
-        end_time = start_time + duration
-        
-        print(f"   Requested start: {requested_start}s")
-        print(f"   Actual start: {start_time}s")
-        print(f"   End time: {end_time}s")
-        print(f"   Actual duration: {end_time - start_time}s")
+        print(f"   Content/video ends at: {video_duration}s")
+        print(f"   End screen start: {start_time}s")
+        print(f"   End screen end: {end_time}s")
+        print(f"   End screen duration: {end_time - start_time}s")
         
         # Convert times to ASS format
         start_ass = self.seconds_to_ass_time(start_time)
