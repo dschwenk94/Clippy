@@ -400,13 +400,13 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             # Determine end screen position
             end_position = end_screen.get('position', 'middle')
             if end_position == 'top':
-                end_margin_v = 50   # Top margin
+                end_margin_v = 150   # Top margin - push down from top
                 alignment = 8       # Top center alignment
             elif end_position == 'bottom':
-                end_margin_v = 50   # Bottom margin
+                end_margin_v = 200  # Large bottom margin to push up from bottom edge
                 alignment = 2       # Bottom center alignment
             else:  # middle
-                end_margin_v = 0    # No margin
+                end_margin_v = 100   # Center with some vertical adjustment
                 alignment = 5       # Center alignment
             
             # Larger, bold Impact font for end screen with outline
