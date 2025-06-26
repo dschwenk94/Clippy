@@ -25,8 +25,8 @@ import psycopg2.extras
 
 # Import our modules
 from auto_peak_viral_clipper import AutoPeakViralClipper
-from caption_fragment_fix import merge_fragmented_captions
-from ass_caption_update_system_v6 import ASSCaptionUpdateSystemV6 as ASSCaptionUpdateSystem
+from src.captions.caption_fragment_fix import merge_fragmented_captions
+from src.captions.ass_caption_update_system_v6 import ASSCaptionUpdateSystemV6 as ASSCaptionUpdateSystem
 
 # Import auth modules
 from auth import login_required, get_current_user, OAuthManager, User
