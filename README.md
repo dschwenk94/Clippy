@@ -49,19 +49,31 @@ Access the web interface at: `http://localhost:5000`
 
 ```
 Clippy/
-├── app.py                    # Main application (multi-user version)
-├── ass_caption_update_system_v6.py  # Speech-synced caption system
-├── src/
-│   ├── core/                # Core functionality
-│   │   ├── auto_peak_viral_clipper.py
-│   │   ├── viral_clipper_complete.py
-│   │   └── enhanced_heuristic_peak_detector.py
-│   └── utils/               # Utility functions
-├── templates/               # HTML templates
-├── static/                  # CSS, JS, assets
-├── configs/                 # Configuration files
-├── docs/                    # Documentation
-└── archive/                 # Old versions (git ignored)
+├── app.py                      # Main Flask application
+├── requirements_webapp.txt     # Python dependencies
+├── .env.example               # Environment variables template
+├── src/                       # Source code (organized modules)
+│   ├── core/                  # Core processing modules
+│   │   ├── auto_peak_viral_clipper.py      # Auto-peak detection & clip generation
+│   │   ├── viral_clipper_complete.py       # Complete viral clip system
+│   │   ├── enhanced_heuristic_peak_detector.py  # Peak detection algorithms
+│   │   └── storage_optimizer.py            # Storage management utilities
+│   ├── captions/              # Caption processing modules
+│   │   ├── ass_caption_update_system_v6.py # Speech-synced caption system
+│   │   ├── ass_subtitle_generation.py      # ASS subtitle generation
+│   │   ├── srt_viral_caption_system.py     # SRT caption system
+│   │   └── caption_fragment_fix.py         # Caption fixing utilities
+│   ├── routes/                # Flask route handlers
+│   │   └── tiktok_routes.py   # TikTok integration endpoints
+│   └── utils/                 # Utility functions
+│       └── install_deps.py    # Dependency installation helper
+├── templates/                 # HTML templates
+├── static/                    # CSS, JavaScript, assets
+├── configs/                   # Configuration files
+├── database/                  # Database migrations & models
+├── docs/                      # Documentation
+├── scripts/                   # Utility scripts
+└── tests/                     # Test suite
 ```
 
 ## 🎥 Caption System
@@ -78,6 +90,7 @@ Clippy uses the **ASS Caption Update System V6** which features:
 - [Multi-User Configuration](docs/MULTIUSER.md)
 - [API Reference](docs/API.md)
 - [Development Guide](docs/DEVELOPMENT.md)
+- [Repository Reorganization](docs/REPOSITORY_REORGANIZATION.md)
 
 ## 🤝 Contributing
 
