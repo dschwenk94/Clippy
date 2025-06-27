@@ -510,13 +510,15 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         
         for word in self.viral_keywords:
             if word.lower() in text.lower():
-                # Create viral word format
-                viral_format = f"{{\\c{ass_color}\\fs26\\b1}}{word.upper()}{{\\r}}"
+                # Use a replacement function to avoid regex escape issues
+                def viral_replacer(match):
+                    # Return the formatted viral word
+                    return "{{\\c{0}\\fs26\\b1}}{1}{{\\r}}".format(ass_color, word.upper())
                 
                 # Replace case-insensitively
                 import re
                 pattern = re.compile(re.escape(word), re.IGNORECASE)
-                formatted_text = pattern.sub(viral_format, formatted_text)
+                formatted_text = pattern.sub(viral_replacer, formatted_text)
         
         return formatted_text
     
