@@ -24,7 +24,7 @@ from datetime import datetime, timedelta
 import psycopg2.extras
 
 # Import our modules
-from auto_peak_viral_clipper import AutoPeakViralClipper
+from src.core.auto_peak_viral_clipper import AutoPeakViralClipper
 from src.captions.caption_fragment_fix import merge_fragmented_captions
 from src.captions.ass_caption_update_system_v6 import ASSCaptionUpdateSystemV6 as ASSCaptionUpdateSystem
 

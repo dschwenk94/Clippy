@@ -9,7 +9,7 @@ import ffmpeg
 import json
 from datetime import datetime
 from typing import List, Dict, Optional
-from viral_word_detection import ViralCaptionProcessor, ViralCaptionSegment
+from .viral_word_detection import ViralCaptionProcessor, ViralCaptionSegment
 
 class ASSSubtitleGenerator:
     """Generates ASS subtitle files with viral styling"""
