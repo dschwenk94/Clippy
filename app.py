@@ -689,6 +689,15 @@ def upload_to_youtube():
         logger.error(f"YouTube upload failed: {str(e)}")
         import traceback
         logger.error(f"Traceback: {traceback.format_exc()}")
+        
+        # Check if it's a scope issue
+        if "insufficient authentication scopes" in str(e).lower() or "insufficientPermissions" in str(e):
+            return jsonify({
+                'error': 'Your account needs to be re-authenticated to enable YouTube uploads. Please sign out and sign in again.',
+                'error_type': 'insufficient_scopes',
+                'needs_reauth': True
+            }), 403
+        
         return jsonify({'error': f'Upload failed: {str(e)}'}), 500
 
 

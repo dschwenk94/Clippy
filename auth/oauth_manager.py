@@ -66,7 +66,7 @@ class OAuthManager:
             access_type='offline',
             include_granted_scopes='true',
             state=state,
-            prompt='consent'  # Force consent to ensure refresh token
+            prompt='consent'  # Force consent to ensure refresh token and all scopes
         )
         
         return authorization_url, state
@@ -300,6 +300,28 @@ class OAuthManager:
         with open(self.client_secrets_file, 'r') as f:
             secrets = json.load(f)
             return secrets.get('web', {}).get('client_secret', '')
+    
+    def check_user_scopes(self, user: User) -> bool:
+        """Check if user has all required OAuth scopes"""
+        try:
+            # Get YouTube service to test scopes
+            youtube_service = self.get_youtube_service(user)
+            if not youtube_service:
+                return False
+                
+            # Try to list channels (requires youtube scope)
+            try:
+                youtube_service.channels().list(part='id', mine=True).execute()
+                return True
+            except Exception as e:
+                if "insufficientPermissions" in str(e) or "insufficient authentication scopes" in str(e).lower():
+                    logger.info(f"User {user.email} needs to re-authenticate for YouTube upload scope")
+                    return False
+                raise e
+                
+        except Exception as e:
+            logger.error(f"Error checking user scopes: {e}")
+            return False
     
     def revoke_user_credentials(self, user: User) -> bool:
         """Revoke user's OAuth credentials"""
