@@ -466,6 +466,7 @@ class EditPage {
         // Color cells
         document.querySelectorAll('.color-cell').forEach(cell => {
             cell.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent closing when clicking color
                 const color = e.target.dataset.color;
                 this.selectColor(color);
             });
@@ -483,23 +484,26 @@ class EditPage {
     }
     
     selectColor(color) {
+        // Set selected color FIRST (ensure uppercase)
+        this.selectedColor = color.toUpperCase();
+        
         // Update preview
-        this.updateColorPreview(color);
+        this.updateColorPreview(this.selectedColor);
         
         // Highlight selected color
         document.querySelectorAll('.color-cell').forEach(cell => {
             cell.classList.remove('selected');
-            if (cell.dataset.color === color) {
+            // Compare uppercase to handle case differences
+            if (cell.dataset.color.toUpperCase() === this.selectedColor) {
                 cell.classList.add('selected');
             }
         });
         
         // Update selected color display
-        document.getElementById('selected-color-value').textContent = color;
-        document.getElementById('selected-color-preview').style.backgroundColor = color;
+        document.getElementById('selected-color-value').textContent = this.selectedColor;
+        document.getElementById('selected-color-preview').style.backgroundColor = this.selectedColor;
         
         // Apply immediately
-        this.selectedColor = color;
         this.applyColorFromPicker();
     }
     
@@ -569,8 +573,19 @@ class EditPage {
             ? this.speakerSettings[speaker].fillColor 
             : this.speakerSettings[speaker].outlineColor;
         
-        this.selectedColor = currentColor;
-        this.selectColor(currentColor);
+        this.selectedColor = currentColor.toUpperCase();
+        
+        // Highlight the current color in the grid
+        document.querySelectorAll('.color-cell').forEach(cell => {
+            cell.classList.remove('selected');
+            if (cell.dataset.color.toUpperCase() === this.selectedColor) {
+                cell.classList.add('selected');
+            }
+        });
+        
+        // Update selected color display
+        document.getElementById('selected-color-value').textContent = this.selectedColor;
+        document.getElementById('selected-color-preview').style.backgroundColor = this.selectedColor;
         
         // Position popup near button (fixed positioning)
         const rect = button.getBoundingClientRect();
@@ -600,10 +615,18 @@ class EditPage {
     }
     
     applyColorFromPicker() {
-        if (!this.colorPickerTarget || !this.selectedColor) return;
+        if (!this.colorPickerTarget || !this.selectedColor) {
+            console.warn('applyColorFromPicker: Missing target or color', {
+                target: this.colorPickerTarget,
+                selectedColor: this.selectedColor
+            });
+            return;
+        }
         
         const { speaker, colorType, button } = this.colorPickerTarget;
         const color = this.selectedColor;
+        
+        console.log('Applying color:', { speaker, colorType, color });
         
         // Update settings
         if (colorType === 'fill') {
@@ -632,7 +655,7 @@ class EditPage {
         }
         
         this.hasUnsavedChanges = true;
-        this.closeColorPicker();
+        // Don't close immediately - let user pick multiple colors if needed
     }
     
     applySettingsToAllSpeakers(sourceSpeaker) {
