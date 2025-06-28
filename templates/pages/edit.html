@@ -119,40 +119,157 @@
                     </select>
                 </div>
                 
-                <div class="speaker-colors">
-                    <h4>Speaker Colors</h4>
-                    <div class="color-selectors">
-                        <div class="color-control">
-                            <label for="speaker-1-color">Speaker 1</label>
-                            <select id="speaker-1-color" class="control-select color-select" data-speaker="1">
-                                <option value="#FF4500" selected data-color="#FF4500">Red</option>
-                                <option value="#00BFFF" data-color="#00BFFF">Blue</option>
-                                <option value="#FFD700" data-color="#FFD700">Yellow</option>
-                                <option value="#00FF88" data-color="#00FF88">Green</option>
-                                <option value="#FF1493" data-color="#FF1493">Pink</option>
-                            </select>
+                <!-- Speaker Tabs -->
+                <div class="speaker-tabs-container">
+                    <div class="speaker-tabs">
+                        <button class="speaker-tab active" data-speaker="1" style="--tab-color: #FF4500">
+                            Speaker 1
+                        </button>
+                        <button class="speaker-tab" data-speaker="2" style="--tab-color: #00BFFF">
+                            Speaker 2
+                        </button>
+                        <button class="speaker-tab" data-speaker="3" style="--tab-color: #00FF88">
+                            Speaker 3
+                        </button>
+                    </div>
+                    
+                    <!-- Speaker Settings Panels -->
+                    <div class="speaker-settings-panel active" data-speaker="1">
+                        <div class="settings-grid">
+                            <div class="control-group">
+                                <label for="speaker-1-font">Font</label>
+                                <select id="speaker-1-font" class="control-select font-select" data-speaker="1">
+                                    <option value="Impact" style="font-family: Impact">Impact</option>
+                                    <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
+                                    <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
+                                    <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
+                                    <option value="Roboto" style="font-family: Roboto">Roboto</option>
+                                    <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="speaker-1-fill-color">Fill Color</label>
+                                <button class="color-picker-button" data-speaker="1" data-color-type="fill" style="background-color: #FF4500">
+                                    <span class="color-value">#FF4500</span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="speaker-1-outline-color">Outline Color</label>
+                                <button class="color-picker-button" data-speaker="1" data-color-type="outline" style="background-color: #000000">
+                                    <span class="color-value">#000000</span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group full-width">
+                                <label for="speaker-1-outline-thickness">Outline Thickness</label>
+                                <div class="slider-container">
+                                    <input type="range" id="speaker-1-outline-thickness" class="control-slider" 
+                                           data-speaker="1" min="1" max="5" step="0.5" value="2">
+                                    <span class="slider-value">2px</span>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="color-control">
-                            <label for="speaker-2-color">Speaker 2</label>
-                            <select id="speaker-2-color" class="control-select color-select" data-speaker="2">
-                                <option value="#FF4500" data-color="#FF4500">Red</option>
-                                <option value="#00BFFF" selected data-color="#00BFFF">Blue</option>
-                                <option value="#FFD700" data-color="#FFD700">Yellow</option>
-                                <option value="#00FF88" data-color="#00FF88">Green</option>
-                                <option value="#FF1493" data-color="#FF1493">Pink</option>
-                            </select>
+                        <button class="btn btn-secondary apply-all-btn" data-speaker="1">
+                            Apply Settings to All Speakers
+                        </button>
+                    </div>
+                    
+                    <div class="speaker-settings-panel" data-speaker="2">
+                        <div class="settings-grid">
+                            <div class="control-group">
+                                <label for="speaker-2-font">Font</label>
+                                <select id="speaker-2-font" class="control-select font-select" data-speaker="2">
+                                    <option value="Impact" style="font-family: Impact">Impact</option>
+                                    <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
+                                    <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
+                                    <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
+                                    <option value="Roboto" style="font-family: Roboto">Roboto</option>
+                                    <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="speaker-2-fill-color">Fill Color</label>
+                                <button class="color-picker-button" data-speaker="2" data-color-type="fill" style="background-color: #00BFFF">
+                                    <span class="color-value">#00BFFF</span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="speaker-2-outline-color">Outline Color</label>
+                                <button class="color-picker-button" data-speaker="2" data-color-type="outline" style="background-color: #000000">
+                                    <span class="color-value">#000000</span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group full-width">
+                                <label for="speaker-2-outline-thickness">Outline Thickness</label>
+                                <div class="slider-container">
+                                    <input type="range" id="speaker-2-outline-thickness" class="control-slider" 
+                                           data-speaker="2" min="1" max="5" step="0.5" value="2">
+                                    <span class="slider-value">2px</span>
+                                </div>
+                            </div>
                         </div>
                         
-                        <div class="color-control">
-                            <label for="speaker-3-color">Speaker 3</label>
-                            <select id="speaker-3-color" class="control-select color-select" data-speaker="3">
-                                <option value="#FF4500" data-color="#FF4500">Red</option>
-                                <option value="#00BFFF" data-color="#00BFFF">Blue</option>
-                                <option value="#FFD700" data-color="#FFD700">Yellow</option>
-                                <option value="#00FF88" selected data-color="#00FF88">Green</option>
-                                <option value="#FF1493" data-color="#FF1493">Pink</option>
-                            </select>
+                        <button class="btn btn-secondary apply-all-btn" data-speaker="2">
+                            Apply Settings to All Speakers
+                        </button>
+                    </div>
+                    
+                    <div class="speaker-settings-panel" data-speaker="3">
+                        <div class="settings-grid">
+                            <div class="control-group">
+                                <label for="speaker-3-font">Font</label>
+                                <select id="speaker-3-font" class="control-select font-select" data-speaker="3">
+                                    <option value="Impact" style="font-family: Impact">Impact</option>
+                                    <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
+                                    <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
+                                    <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
+                                    <option value="Roboto" style="font-family: Roboto">Roboto</option>
+                                    <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="speaker-3-fill-color">Fill Color</label>
+                                <button class="color-picker-button" data-speaker="3" data-color-type="fill" style="background-color: #00FF88">
+                                    <span class="color-value">#00FF88</span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="speaker-3-outline-color">Outline Color</label>
+                                <button class="color-picker-button" data-speaker="3" data-color-type="outline" style="background-color: #000000">
+                                    <span class="color-value">#000000</span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group full-width">
+                                <label for="speaker-3-outline-thickness">Outline Thickness</label>
+                                <div class="slider-container">
+                                    <input type="range" id="speaker-3-outline-thickness" class="control-slider" 
+                                           data-speaker="3" min="1" max="5" step="0.5" value="2">
+                                    <span class="slider-value">2px</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-secondary apply-all-btn" data-speaker="3">
+                            Apply Settings to All Speakers
+                        </button>
+                    </div>
+                    
+                    <!-- Preview Section -->
+                    <div class="caption-preview-section">
+                        <h4>Preview</h4>
+                        <div class="caption-preview-wrapper">
+                            <div class="caption-preview" id="caption-preview">
+                                <span class="preview-text">Preview</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -197,6 +314,25 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Color Picker Popup -->
+<div id="color-picker-popup" class="color-picker-popup hidden">
+    <div class="color-picker-header">
+        <span class="color-picker-title">Choose Color</span>
+        <button class="color-picker-close">&times;</button>
+    </div>
+    <div class="color-picker-body">
+        <div class="color-wheel-container">
+            <canvas id="color-wheel" width="200" height="200"></canvas>
+            <div class="color-picker-cursor"></div>
+        </div>
+        <div class="color-controls">
+            <div class="color-preview-large" id="color-preview"></div>
+            <input type="text" class="color-input" id="color-input" value="#FF4500">
+            <button class="btn btn-primary btn-sm" id="color-picker-apply">Apply</button>
         </div>
     </div>
 </div>
