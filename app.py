@@ -579,38 +579,38 @@ def update_captions():
 @youtube_service_required
 def upload_to_youtube():
     """Upload clip to YouTube - REQUIRES AUTHENTICATION"""
-    user = get_current_user()
-    youtube_service = g.youtube_service
-    
-    data = request.json
-    job_id = data.get('job_id')
-    title = data.get('title', '').strip()
-    description = data.get('description', '').strip()
-    privacy_status = data.get('privacy_status', 'private')
-    
-    if job_id not in active_jobs:
-        return jsonify({'error': 'Job not found'}), 404
-    
-    job = active_jobs[job_id]
-    
-    # For anonymous jobs, convert them to user jobs upon upload
-    if job.is_anonymous:
-        # Update job ownership
-        job.user_id = user.id
-        job.is_anonymous = False
-        
-        # Convert in database
-        convert_anonymous_clips_to_user(job.session_id, user.id)
-    elif job.user_id != user.id:
-        return jsonify({'error': 'Unauthorized'}), 403
-    
-    if not job.clip_data:
-        return jsonify({'error': 'No clip available for upload'}), 400
-    
-    if not title:
-        return jsonify({'error': 'Title is required'}), 400
-    
     try:
+        user = get_current_user()
+        youtube_service = g.youtube_service
+        
+        data = request.json
+        job_id = data.get('job_id')
+        title = data.get('title', '').strip()
+        description = data.get('description', '').strip()
+        privacy_status = data.get('privacy_status', 'private')
+        
+        if job_id not in active_jobs:
+            return jsonify({'error': 'Job not found'}), 404
+        
+        job = active_jobs[job_id]
+        
+        # For anonymous jobs, convert them to user jobs upon upload
+        if job.is_anonymous:
+            # Update job ownership
+            job.user_id = user.id
+            job.is_anonymous = False
+            
+            # Convert in database
+            convert_anonymous_clips_to_user(job.session_id, user.id)
+        elif job.user_id != user.id:
+            return jsonify({'error': 'Unauthorized'}), 403
+        
+        if not job.clip_data:
+            return jsonify({'error': 'No clip available for upload'}), 400
+        
+        if not title:
+            return jsonify({'error': 'Title is required'}), 400
+        
         video_path = job.clip_data['path']
         
         if not os.path.exists(video_path):
@@ -686,6 +686,9 @@ def upload_to_youtube():
             }), 500
             
     except Exception as e:
+        logger.error(f"YouTube upload failed: {str(e)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return jsonify({'error': f'Upload failed: {str(e)}'}), 500
 
 
