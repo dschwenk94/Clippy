@@ -135,39 +135,54 @@
                     
                     <!-- Speaker Settings Panels -->
                     <div class="speaker-settings-panel active" data-speaker="1">
-                        <div class="settings-grid">
-                            <div class="control-group">
-                                <label for="speaker-1-font">Font</label>
-                                <select id="speaker-1-font" class="control-select font-select" data-speaker="1">
-                                    <option value="Impact" style="font-family: Impact">Impact</option>
-                                    <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
-                                    <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
-                                    <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
-                                    <option value="Roboto" style="font-family: Roboto">Roboto</option>
-                                    <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
-                                </select>
+                        <div class="settings-compact">
+                            <!-- First row: Font, Fill Color, Outline Color -->
+                            <div class="settings-row">
+                                <div class="control-group">
+                                    <label for="speaker-1-font">Font</label>
+                                    <select id="speaker-1-font" class="control-select font-select" data-speaker="1">
+                                        <option value="Impact" style="font-family: Impact">Impact</option>
+                                        <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
+                                        <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
+                                        <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
+                                        <option value="Roboto" style="font-family: Roboto">Roboto</option>
+                                        <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="speaker-1-fill-color">Fill Color</label>
+                                    <button class="color-picker-button" data-speaker="1" data-color-type="fill" style="background-color: #FF4500">
+                                        <span class="color-value">#FF4500</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="speaker-1-outline-color">Outline Color</label>
+                                    <button class="color-picker-button" data-speaker="1" data-color-type="outline" style="background-color: #000000">
+                                        <span class="color-value">#000000</span>
+                                    </button>
+                                </div>
                             </div>
                             
-                            <div class="control-group">
-                                <label for="speaker-1-fill-color">Fill Color</label>
-                                <button class="color-picker-button" data-speaker="1" data-color-type="fill" style="background-color: #FF4500">
-                                    <span class="color-value">#FF4500</span>
-                                </button>
-                            </div>
-                            
-                            <div class="control-group">
-                                <label for="speaker-1-outline-color">Outline Color</label>
-                                <button class="color-picker-button" data-speaker="1" data-color-type="outline" style="background-color: #000000">
-                                    <span class="color-value">#000000</span>
-                                </button>
-                            </div>
-                            
-                            <div class="control-group full-width">
-                                <label for="speaker-1-outline-thickness">Outline Thickness</label>
-                                <div class="slider-container">
-                                    <input type="range" id="speaker-1-outline-thickness" class="control-slider" 
-                                           data-speaker="1" min="1" max="5" step="0.5" value="2">
-                                    <span class="slider-value">2px</span>
+                            <!-- Second row: Font Size and Outline Thickness -->
+                            <div class="settings-row sliders-row">
+                                <div class="control-group">
+                                    <label for="speaker-1-font-size">Font Size</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="speaker-1-font-size" class="control-slider font-size-slider" 
+                                               data-speaker="1" min="16" max="32" step="1" value="22">
+                                        <span class="slider-value">22px</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="speaker-1-outline-thickness">Outline Thickness</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="speaker-1-outline-thickness" class="control-slider outline-thickness-slider" 
+                                               data-speaker="1" min="1" max="5" step="0.5" value="2">
+                                        <span class="slider-value">2px</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -178,39 +193,54 @@
                     </div>
                     
                     <div class="speaker-settings-panel" data-speaker="2">
-                        <div class="settings-grid">
-                            <div class="control-group">
-                                <label for="speaker-2-font">Font</label>
-                                <select id="speaker-2-font" class="control-select font-select" data-speaker="2">
-                                    <option value="Impact" style="font-family: Impact">Impact</option>
-                                    <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
-                                    <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
-                                    <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
-                                    <option value="Roboto" style="font-family: Roboto">Roboto</option>
-                                    <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
-                                </select>
+                        <div class="settings-compact">
+                            <!-- First row: Font, Fill Color, Outline Color -->
+                            <div class="settings-row">
+                                <div class="control-group">
+                                    <label for="speaker-2-font">Font</label>
+                                    <select id="speaker-2-font" class="control-select font-select" data-speaker="2">
+                                        <option value="Impact" style="font-family: Impact">Impact</option>
+                                        <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
+                                        <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
+                                        <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
+                                        <option value="Roboto" style="font-family: Roboto">Roboto</option>
+                                        <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="speaker-2-fill-color">Fill Color</label>
+                                    <button class="color-picker-button" data-speaker="2" data-color-type="fill" style="background-color: #00BFFF">
+                                        <span class="color-value">#00BFFF</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="speaker-2-outline-color">Outline Color</label>
+                                    <button class="color-picker-button" data-speaker="2" data-color-type="outline" style="background-color: #000000">
+                                        <span class="color-value">#000000</span>
+                                    </button>
+                                </div>
                             </div>
                             
-                            <div class="control-group">
-                                <label for="speaker-2-fill-color">Fill Color</label>
-                                <button class="color-picker-button" data-speaker="2" data-color-type="fill" style="background-color: #00BFFF">
-                                    <span class="color-value">#00BFFF</span>
-                                </button>
-                            </div>
-                            
-                            <div class="control-group">
-                                <label for="speaker-2-outline-color">Outline Color</label>
-                                <button class="color-picker-button" data-speaker="2" data-color-type="outline" style="background-color: #000000">
-                                    <span class="color-value">#000000</span>
-                                </button>
-                            </div>
-                            
-                            <div class="control-group full-width">
-                                <label for="speaker-2-outline-thickness">Outline Thickness</label>
-                                <div class="slider-container">
-                                    <input type="range" id="speaker-2-outline-thickness" class="control-slider" 
-                                           data-speaker="2" min="1" max="5" step="0.5" value="2">
-                                    <span class="slider-value">2px</span>
+                            <!-- Second row: Font Size and Outline Thickness -->
+                            <div class="settings-row sliders-row">
+                                <div class="control-group">
+                                    <label for="speaker-2-font-size">Font Size</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="speaker-2-font-size" class="control-slider font-size-slider" 
+                                               data-speaker="2" min="16" max="32" step="1" value="22">
+                                        <span class="slider-value">22px</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="speaker-2-outline-thickness">Outline Thickness</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="speaker-2-outline-thickness" class="control-slider outline-thickness-slider" 
+                                               data-speaker="2" min="1" max="5" step="0.5" value="2">
+                                        <span class="slider-value">2px</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -221,39 +251,54 @@
                     </div>
                     
                     <div class="speaker-settings-panel" data-speaker="3">
-                        <div class="settings-grid">
-                            <div class="control-group">
-                                <label for="speaker-3-font">Font</label>
-                                <select id="speaker-3-font" class="control-select font-select" data-speaker="3">
-                                    <option value="Impact" style="font-family: Impact">Impact</option>
-                                    <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
-                                    <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
-                                    <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
-                                    <option value="Roboto" style="font-family: Roboto">Roboto</option>
-                                    <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
-                                </select>
+                        <div class="settings-compact">
+                            <!-- First row: Font, Fill Color, Outline Color -->
+                            <div class="settings-row">
+                                <div class="control-group">
+                                    <label for="speaker-3-font">Font</label>
+                                    <select id="speaker-3-font" class="control-select font-select" data-speaker="3">
+                                        <option value="Impact" style="font-family: Impact">Impact</option>
+                                        <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
+                                        <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
+                                        <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
+                                        <option value="Roboto" style="font-family: Roboto">Roboto</option>
+                                        <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="speaker-3-fill-color">Fill Color</label>
+                                    <button class="color-picker-button" data-speaker="3" data-color-type="fill" style="background-color: #00FF88">
+                                        <span class="color-value">#00FF88</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="speaker-3-outline-color">Outline Color</label>
+                                    <button class="color-picker-button" data-speaker="3" data-color-type="outline" style="background-color: #000000">
+                                        <span class="color-value">#000000</span>
+                                    </button>
+                                </div>
                             </div>
                             
-                            <div class="control-group">
-                                <label for="speaker-3-fill-color">Fill Color</label>
-                                <button class="color-picker-button" data-speaker="3" data-color-type="fill" style="background-color: #00FF88">
-                                    <span class="color-value">#00FF88</span>
-                                </button>
-                            </div>
-                            
-                            <div class="control-group">
-                                <label for="speaker-3-outline-color">Outline Color</label>
-                                <button class="color-picker-button" data-speaker="3" data-color-type="outline" style="background-color: #000000">
-                                    <span class="color-value">#000000</span>
-                                </button>
-                            </div>
-                            
-                            <div class="control-group full-width">
-                                <label for="speaker-3-outline-thickness">Outline Thickness</label>
-                                <div class="slider-container">
-                                    <input type="range" id="speaker-3-outline-thickness" class="control-slider" 
-                                           data-speaker="3" min="1" max="5" step="0.5" value="2">
-                                    <span class="slider-value">2px</span>
+                            <!-- Second row: Font Size and Outline Thickness -->
+                            <div class="settings-row sliders-row">
+                                <div class="control-group">
+                                    <label for="speaker-3-font-size">Font Size</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="speaker-3-font-size" class="control-slider font-size-slider" 
+                                               data-speaker="3" min="16" max="32" step="1" value="22">
+                                        <span class="slider-value">22px</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="control-group">
+                                    <label for="speaker-3-outline-thickness">Outline Thickness</label>
+                                    <div class="slider-container">
+                                        <input type="range" id="speaker-3-outline-thickness" class="control-slider outline-thickness-slider" 
+                                               data-speaker="3" min="1" max="5" step="0.5" value="2">
+                                        <span class="slider-value">2px</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -320,19 +365,96 @@
 
 <!-- Color Picker Popup -->
 <div id="color-picker-popup" class="color-picker-popup hidden">
-    <div class="color-picker-header">
+    <div class="color-picker-header" id="color-picker-header">
         <span class="color-picker-title">Choose Color</span>
         <button class="color-picker-close">&times;</button>
     </div>
     <div class="color-picker-body">
-        <div class="color-wheel-container">
-            <canvas id="color-wheel" width="200" height="200"></canvas>
-            <div class="color-picker-cursor"></div>
-        </div>
-        <div class="color-controls">
-            <div class="color-preview-large" id="color-preview"></div>
-            <input type="text" class="color-input" id="color-input" value="#FF4500">
-            <button class="btn btn-primary btn-sm" id="color-picker-apply">Apply</button>
+        <div class="color-table-container">
+            <div class="color-section">
+                <h4>Theme Colors</h4>
+                <div class="color-grid theme-colors">
+                    <button class="color-cell" data-color="#FFFFFF" style="background-color: #FFFFFF" title="White"></button>
+                    <button class="color-cell" data-color="#000000" style="background-color: #000000" title="Black"></button>
+                    <button class="color-cell" data-color="#FF0000" style="background-color: #FF0000" title="Red"></button>
+                    <button class="color-cell" data-color="#00FF00" style="background-color: #00FF00" title="Green"></button>
+                    <button class="color-cell" data-color="#0000FF" style="background-color: #0000FF" title="Blue"></button>
+                    <button class="color-cell" data-color="#FFFF00" style="background-color: #FFFF00" title="Yellow"></button>
+                    <button class="color-cell" data-color="#FF00FF" style="background-color: #FF00FF" title="Magenta"></button>
+                    <button class="color-cell" data-color="#00FFFF" style="background-color: #00FFFF" title="Cyan"></button>
+                </div>
+            </div>
+            
+            <div class="color-section">
+                <h4>Standard Colors</h4>
+                <div class="color-grid standard-colors">
+                    <!-- Row 1: Reds -->
+                    <button class="color-cell" data-color="#FF0000" style="background-color: #FF0000"></button>
+                    <button class="color-cell" data-color="#FF4500" style="background-color: #FF4500"></button>
+                    <button class="color-cell" data-color="#DC143C" style="background-color: #DC143C"></button>
+                    <button class="color-cell" data-color="#B22222" style="background-color: #B22222"></button>
+                    <button class="color-cell" data-color="#8B0000" style="background-color: #8B0000"></button>
+                    <button class="color-cell" data-color="#FF1493" style="background-color: #FF1493"></button>
+                    <button class="color-cell" data-color="#FF69B4" style="background-color: #FF69B4"></button>
+                    <button class="color-cell" data-color="#FFC0CB" style="background-color: #FFC0CB"></button>
+                    
+                    <!-- Row 2: Oranges/Yellows -->
+                    <button class="color-cell" data-color="#FF8C00" style="background-color: #FF8C00"></button>
+                    <button class="color-cell" data-color="#FFA500" style="background-color: #FFA500"></button>
+                    <button class="color-cell" data-color="#FFD700" style="background-color: #FFD700"></button>
+                    <button class="color-cell" data-color="#FFFF00" style="background-color: #FFFF00"></button>
+                    <button class="color-cell" data-color="#F0E68C" style="background-color: #F0E68C"></button>
+                    <button class="color-cell" data-color="#BDB76B" style="background-color: #BDB76B"></button>
+                    <button class="color-cell" data-color="#808000" style="background-color: #808000"></button>
+                    <button class="color-cell" data-color="#556B2F" style="background-color: #556B2F"></button>
+                    
+                    <!-- Row 3: Greens -->
+                    <button class="color-cell" data-color="#00FF00" style="background-color: #00FF00"></button>
+                    <button class="color-cell" data-color="#00FF88" style="background-color: #00FF88"></button>
+                    <button class="color-cell" data-color="#32CD32" style="background-color: #32CD32"></button>
+                    <button class="color-cell" data-color="#228B22" style="background-color: #228B22"></button>
+                    <button class="color-cell" data-color="#008000" style="background-color: #008000"></button>
+                    <button class="color-cell" data-color="#006400" style="background-color: #006400"></button>
+                    <button class="color-cell" data-color="#2E8B57" style="background-color: #2E8B57"></button>
+                    <button class="color-cell" data-color="#3CB371" style="background-color: #3CB371"></button>
+                    
+                    <!-- Row 4: Blues -->
+                    <button class="color-cell" data-color="#00FFFF" style="background-color: #00FFFF"></button>
+                    <button class="color-cell" data-color="#00BFFF" style="background-color: #00BFFF"></button>
+                    <button class="color-cell" data-color="#1E90FF" style="background-color: #1E90FF"></button>
+                    <button class="color-cell" data-color="#0000FF" style="background-color: #0000FF"></button>
+                    <button class="color-cell" data-color="#0000CD" style="background-color: #0000CD"></button>
+                    <button class="color-cell" data-color="#000080" style="background-color: #000080"></button>
+                    <button class="color-cell" data-color="#4169E1" style="background-color: #4169E1"></button>
+                    <button class="color-cell" data-color="#483D8B" style="background-color: #483D8B"></button>
+                    
+                    <!-- Row 5: Purples -->
+                    <button class="color-cell" data-color="#FF00FF" style="background-color: #FF00FF"></button>
+                    <button class="color-cell" data-color="#DA70D6" style="background-color: #DA70D6"></button>
+                    <button class="color-cell" data-color="#BA55D3" style="background-color: #BA55D3"></button>
+                    <button class="color-cell" data-color="#9370DB" style="background-color: #9370DB"></button>
+                    <button class="color-cell" data-color="#8B008B" style="background-color: #8B008B"></button>
+                    <button class="color-cell" data-color="#800080" style="background-color: #800080"></button>
+                    <button class="color-cell" data-color="#4B0082" style="background-color: #4B0082"></button>
+                    <button class="color-cell" data-color="#6A0DAD" style="background-color: #6A0DAD"></button>
+                    
+                    <!-- Row 6: Grays/Neutrals -->
+                    <button class="color-cell" data-color="#FFFFFF" style="background-color: #FFFFFF"></button>
+                    <button class="color-cell" data-color="#F5F5F5" style="background-color: #F5F5F5"></button>
+                    <button class="color-cell" data-color="#DCDCDC" style="background-color: #DCDCDC"></button>
+                    <button class="color-cell" data-color="#C0C0C0" style="background-color: #C0C0C0"></button>
+                    <button class="color-cell" data-color="#808080" style="background-color: #808080"></button>
+                    <button class="color-cell" data-color="#696969" style="background-color: #696969"></button>
+                    <button class="color-cell" data-color="#2F4F4F" style="background-color: #2F4F4F"></button>
+                    <button class="color-cell" data-color="#000000" style="background-color: #000000"></button>
+                </div>
+            </div>
+            
+            <div class="color-selection-info">
+                <span>Selected: </span>
+                <div class="selected-color-preview" id="selected-color-preview"></div>
+                <span class="selected-color-value" id="selected-color-value">#000000</span>
+            </div>
         </div>
     </div>
 </div>

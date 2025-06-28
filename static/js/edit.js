@@ -21,19 +21,22 @@ class EditPage {
                 font: 'Impact',
                 fillColor: '#FF4500',
                 outlineColor: '#000000',
-                outlineThickness: 2
+                outlineThickness: 2,
+                fontSize: 22
             },
             2: {
                 font: 'Impact',
                 fillColor: '#00BFFF',
                 outlineColor: '#000000',
-                outlineThickness: 2
+                outlineThickness: 2,
+                fontSize: 22
             },
             3: {
                 font: 'Impact',
                 fillColor: '#00FF88',
                 outlineColor: '#000000',
-                outlineThickness: 2
+                outlineThickness: 2,
+                fontSize: 22
             }
         };
         
@@ -364,8 +367,28 @@ class EditPage {
             });
         });
         
+        // Font size sliders
+        document.querySelectorAll('.font-size-slider').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const speaker = parseInt(e.target.dataset.speaker);
+                const value = parseInt(e.target.value);
+                this.speakerSettings[speaker].fontSize = value;
+                
+                // Update value display
+                const valueSpan = e.target.nextElementSibling;
+                if (valueSpan) {
+                    valueSpan.textContent = `${value}px`;
+                }
+                
+                this.hasUnsavedChanges = true;
+                if (speaker === this.activeSpeaker) {
+                    this.updateCaptionPreview();
+                }
+            });
+        });
+        
         // Outline thickness sliders
-        document.querySelectorAll('.control-slider').forEach(slider => {
+        document.querySelectorAll('.outline-thickness-slider').forEach(slider => {
             slider.addEventListener('input', (e) => {
                 const speaker = parseInt(e.target.dataset.speaker);
                 const value = parseFloat(e.target.value);
@@ -422,6 +445,7 @@ class EditPage {
         
         if (previewText) {
             previewText.style.fontFamily = settings.font;
+            previewText.style.fontSize = `${settings.fontSize}px`;
             previewText.style.color = settings.fillColor;
             previewText.style.webkitTextStroke = `${settings.outlineThickness}px ${settings.outlineColor}`;
             previewText.style.textStroke = `${settings.outlineThickness}px ${settings.outlineColor}`;
@@ -432,40 +456,23 @@ class EditPage {
     initializeColorPicker() {
         const popup = document.getElementById('color-picker-popup');
         const closeBtn = popup.querySelector('.color-picker-close');
-        const applyBtn = document.getElementById('color-picker-apply');
-        const colorInput = document.getElementById('color-input');
-        const canvas = document.getElementById('color-wheel');
-        const ctx = canvas.getContext('2d');
+        const header = document.getElementById('color-picker-header');
         
         // Close button
         closeBtn.addEventListener('click', () => {
             this.closeColorPicker();
         });
         
-        // Apply button
-        applyBtn.addEventListener('click', () => {
-            this.applyColorFromPicker();
+        // Color cells
+        document.querySelectorAll('.color-cell').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                const color = e.target.dataset.color;
+                this.selectColor(color);
+            });
         });
         
-        // Color input
-        colorInput.addEventListener('input', (e) => {
-            this.updateColorPreview(e.target.value);
-        });
-        
-        // Draw color wheel
-        this.drawColorWheel(ctx, canvas.width, canvas.height);
-        
-        // Canvas click
-        canvas.addEventListener('click', (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const color = this.getColorFromWheel(ctx, x, y);
-            if (color) {
-                colorInput.value = color;
-                this.updateColorPreview(color);
-            }
-        });
+        // Make draggable
+        this.makeDraggable(popup, header);
         
         // Close on outside click
         popup.addEventListener('click', (e) => {
@@ -475,52 +482,84 @@ class EditPage {
         });
     }
     
-    drawColorWheel(ctx, width, height) {
-        const centerX = width / 2;
-        const centerY = height / 2;
-        const radius = Math.min(width, height) / 2 - 5;
+    selectColor(color) {
+        // Update preview
+        this.updateColorPreview(color);
         
-        // Create color wheel using HSL
-        for (let angle = 0; angle < 360; angle += 1) {
-            const startAngle = (angle - 1) * Math.PI / 180;
-            const endAngle = angle * Math.PI / 180;
+        // Highlight selected color
+        document.querySelectorAll('.color-cell').forEach(cell => {
+            cell.classList.remove('selected');
+            if (cell.dataset.color === color) {
+                cell.classList.add('selected');
+            }
+        });
+        
+        // Update selected color display
+        document.getElementById('selected-color-value').textContent = color;
+        document.getElementById('selected-color-preview').style.backgroundColor = color;
+        
+        // Apply immediately
+        this.selectedColor = color;
+        this.applyColorFromPicker();
+    }
+    
+    makeDraggable(element, handle) {
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+        
+        handle.style.cursor = 'move';
+        
+        handle.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+        
+        function dragStart(e) {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
             
-            for (let r = 0; r < radius; r++) {
-                const saturation = (r / radius) * 100;
-                const lightness = 50;
-                
-                ctx.beginPath();
-                ctx.arc(centerX, centerY, r, startAngle, endAngle);
-                ctx.strokeStyle = `hsl(${angle}, ${saturation}%, ${lightness}%)`;
-                ctx.lineWidth = 2;
-                ctx.stroke();
+            if (e.target === handle || handle.contains(e.target)) {
+                isDragging = true;
+                element.style.transition = 'none';
             }
         }
-    }
-    
-    getColorFromWheel(ctx, x, y) {
-        const imageData = ctx.getImageData(x, y, 1, 1);
-        const data = imageData.data;
         
-        if (data[3] > 0) { // Check alpha
-            const r = data[0];
-            const g = data[1];
-            const b = data[2];
-            return this.rgbToHex(r, g, b);
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                
+                xOffset = currentX;
+                yOffset = currentY;
+                
+                // Keep within viewport
+                const rect = element.getBoundingClientRect();
+                const maxX = window.innerWidth - rect.width;
+                const maxY = window.innerHeight - rect.height;
+                
+                currentX = Math.max(0, Math.min(currentX, maxX));
+                currentY = Math.max(0, Math.min(currentY, maxY));
+                
+                element.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
         }
-        return null;
+        
+        function dragEnd(e) {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+            element.style.transition = '';
+        }
     }
-    
-    rgbToHex(r, g, b) {
-        return '#' + [r, g, b].map(x => {
-            const hex = x.toString(16);
-            return hex.length === 1 ? '0' + hex : hex;
-        }).join('');
-    }
+
     
     openColorPicker(speaker, colorType, button) {
         const popup = document.getElementById('color-picker-popup');
-        const colorInput = document.getElementById('color-input');
         
         // Store current target
         this.colorPickerTarget = { speaker, colorType, button };
@@ -530,13 +569,18 @@ class EditPage {
             ? this.speakerSettings[speaker].fillColor 
             : this.speakerSettings[speaker].outlineColor;
         
-        colorInput.value = currentColor;
-        this.updateColorPreview(currentColor);
+        this.selectedColor = currentColor;
+        this.selectColor(currentColor);
         
-        // Position popup near button
+        // Position popup near button (fixed positioning)
         const rect = button.getBoundingClientRect();
-        popup.style.left = `${rect.left}px`;
-        popup.style.top = `${rect.bottom + 10}px`;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        
+        popup.style.position = 'fixed';
+        popup.style.left = `${Math.min(rect.left, window.innerWidth - 350)}px`;
+        popup.style.top = `${Math.min(rect.bottom + 10, window.innerHeight - 400)}px`;
+        popup.style.transform = 'none'; // Reset any dragging transform
         
         // Show popup
         popup.classList.remove('hidden');
@@ -549,17 +593,17 @@ class EditPage {
     }
     
     updateColorPreview(color) {
-        const preview = document.getElementById('color-preview');
+        const preview = document.getElementById('selected-color-preview');
         if (preview) {
             preview.style.backgroundColor = color;
         }
     }
     
     applyColorFromPicker() {
-        if (!this.colorPickerTarget) return;
+        if (!this.colorPickerTarget || !this.selectedColor) return;
         
         const { speaker, colorType, button } = this.colorPickerTarget;
-        const color = document.getElementById('color-input').value;
+        const color = this.selectedColor;
         
         // Update settings
         if (colorType === 'fill') {
@@ -607,6 +651,13 @@ class EditPage {
                 // Update UI for this speaker
                 const fontSelect = document.getElementById(`speaker-${speaker}-font`);
                 if (fontSelect) fontSelect.value = sourceSettings.font;
+                
+                const fontSizeSlider = document.getElementById(`speaker-${speaker}-font-size`);
+                if (fontSizeSlider) {
+                    fontSizeSlider.value = sourceSettings.fontSize;
+                    const sizeSpan = fontSizeSlider.nextElementSibling;
+                    if (sizeSpan) sizeSpan.textContent = `${sourceSettings.fontSize}px`;
+                }
                 
                 const outlineColorBtn = document.querySelector(`.color-picker-button[data-speaker="${speaker}"][data-color-type="outline"]`);
                 if (outlineColorBtn) {
@@ -1448,15 +1499,21 @@ const editPageStyles = `
     display: block;
 }
 
-.settings-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+.settings-compact {
+    display: flex;
+    flex-direction: column;
     gap: var(--space-md);
     margin-bottom: var(--space-lg);
 }
 
-.control-group.full-width {
-    grid-column: 1 / -1;
+.settings-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.settings-row.sliders-row {
+    grid-template-columns: repeat(2, 1fr);
 }
 
 /* Font Select Styling */
@@ -1559,7 +1616,9 @@ const editPageStyles = `
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-xl);
     z-index: 1000;
-    min-width: 280px;
+    width: 320px;
+    max-height: 500px;
+    overflow: hidden;
 }
 
 .color-picker-header {
@@ -1568,6 +1627,8 @@ const editPageStyles = `
     align-items: center;
     padding: var(--space-md);
     border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-overlay);
+    user-select: none;
 }
 
 .color-picker-title {
@@ -1591,70 +1652,101 @@ const editPageStyles = `
 }
 
 .color-picker-close:hover {
-    background: var(--color-surface-overlay);
+    background: var(--color-surface);
     color: var(--color-text-primary);
 }
 
 .color-picker-body {
-    padding: var(--space-lg);
+    padding: var(--space-md);
+    max-height: 400px;
+    overflow-y: auto;
 }
 
-.color-wheel-container {
-    position: relative;
-    margin-bottom: var(--space-md);
+.color-table-container {
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    gap: var(--space-lg);
 }
 
-#color-wheel {
-    border-radius: 50%;
-    cursor: crosshair;
-}
-
-.color-picker-cursor {
-    position: absolute;
-    width: 20px;
-    height: 20px;
-    border: 3px solid white;
-    border-radius: 50%;
-    pointer-events: none;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
-    display: none;
-}
-
-.color-controls {
+.color-section {
     display: flex;
+    flex-direction: column;
     gap: var(--space-sm);
+}
+
+.color-section h4 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+}
+
+.color-cell {
+    width: 32px;
+    height: 32px;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    position: relative;
+}
+
+.color-cell:hover {
+    transform: scale(1.1);
+    border-color: var(--color-primary);
+    z-index: 1;
+}
+
+.color-cell.selected {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.color-cell.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Add border to white color cells */
+.color-cell[data-color="#FFFFFF"],
+.color-cell[data-color="#F5F5F5"],
+.color-cell[data-color="#FFC0CB"] {
+    border: 1px solid var(--color-border);
+}
+
+.color-selection-info {
+    display: flex;
     align-items: center;
-}
-
-.color-preview-large {
-    width: 50px;
-    height: 50px;
-    border-radius: var(--radius-md);
-    border: 2px solid var(--color-border);
-    flex-shrink: 0;
-}
-
-.color-input {
-    flex: 1;
+    gap: var(--space-sm);
     padding: var(--space-sm);
-    background: var(--color-surface);
-    border: 2px solid var(--color-border);
+    background: var(--color-surface-overlay);
     border-radius: var(--radius-md);
-    color: var(--color-text-primary);
+    margin-top: var(--space-sm);
+}
+
+.selected-color-preview {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--color-border);
+}
+
+.selected-color-value {
     font-family: var(--font-mono);
     font-size: var(--text-sm);
-    text-transform: uppercase;
-}
-
-.color-input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-}
-
-#color-picker-apply {
-    flex-shrink: 0;
+    font-weight: 500;
 }
 
 /* Animations */
