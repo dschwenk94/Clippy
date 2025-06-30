@@ -36,7 +36,7 @@ class ASSCaptionUpdateSystemV6:
             'oh my god', 'what the hell', 'holy shit', 'no way'
         ]
     
-    def update_ass_file_with_edits(self, original_ass_path: str, updated_captions: List[Dict], output_path: str = None, video_duration: float = 30.0, caption_position: str = 'bottom', speaker_colors: Dict = None, end_screen: Dict = None) -> bool:
+    def update_ass_file_with_edits(self, original_ass_path: str, updated_captions: List[Dict], output_path: str = None, video_duration: float = 30.0, caption_position: str = 'bottom', speaker_colors: Dict = None, speaker_settings: Dict = None, end_screen: Dict = None) -> bool:
         """Update ASS file PRESERVING ORIGINAL SPEECH TIMING"""
         try:
             print(f"🔍 update_ass_file_with_edits called with:")
@@ -45,7 +45,11 @@ class ASSCaptionUpdateSystemV6:
             print(f"  - video_duration: {video_duration}")
             print(f"  - caption_position: {caption_position}")
             print(f"  - speaker_colors: {speaker_colors}")
+            print(f"  - speaker_settings: {speaker_settings}")
             print(f"  - end_screen: {end_screen}")
+            
+            # Store speaker settings for style generation
+            self.speaker_settings = speaker_settings or {}
             if output_path is None:
                 output_path = original_ass_path
             
@@ -386,10 +390,25 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             margin_v = 50   # Current bottom position
         
         for speaker in speakers:
-            color = self.speaker_colors.get(speaker, "#FFFFFF")
-            ass_color = self.hex_to_ass_color(color)
+            # Get speaker number from speaker name (e.g., "Speaker 1" -> "1")
+            speaker_num = speaker.split()[-1] if speaker.startswith('Speaker') else '1'
+            
+            # Get settings for this speaker
+            settings = self.speaker_settings.get(speaker_num, {})
+            
+            # Use new settings if available, otherwise fall back to speaker_colors
+            font = settings.get('font', 'Arial Black')
+            fill_color = settings.get('fillColor', self.speaker_colors.get(speaker, "#FFFFFF"))
+            outline_color = settings.get('outlineColor', '#000000')
+            outline_thickness = settings.get('outlineThickness', 3)
+            font_size = settings.get('fontSize', 22)
+            
+            # Convert colors to ASS format
+            ass_fill_color = self.hex_to_ass_color(fill_color)
+            ass_outline_color = self.hex_to_ass_color(outline_color)
+            
             # Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-            style_line = f"Style: {speaker},Arial Black,22,{ass_color},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,3,1,2,30,30,{margin_v},1"
+            style_line = f"Style: {speaker},{font},{font_size},{ass_fill_color},&H000000FF,{ass_outline_color},&H80000000,1,0,0,0,100,100,0,0,1,{outline_thickness},1,2,30,30,{margin_v},1"
             styles.append(style_line)
         
         # Add end screen style if enabled
@@ -490,8 +509,12 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     
     def format_caption_text(self, text: str, speaker: str) -> str:
         """Format caption text with speaker color and effects"""
-        # Get speaker color
-        speaker_color = self.speaker_colors.get(speaker, "#FFFFFF")
+        # Get speaker number and settings
+        speaker_num = speaker.split()[-1] if speaker.startswith('Speaker') else '1'
+        settings = self.speaker_settings.get(speaker_num, {})
+        
+        # Use fill color from settings if available
+        speaker_color = settings.get('fillColor', self.speaker_colors.get(speaker, "#FFFFFF"))
         ass_color = self.hex_to_ass_color(speaker_color)
         
         # Format viral words
@@ -505,7 +528,13 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
     def format_viral_words(self, text: str, speaker: str) -> str:
         """Format viral words with special styling"""
         formatted_text = text
-        speaker_color = self.speaker_colors.get(speaker, "#FFFFFF")
+        
+        # Get speaker number and settings
+        speaker_num = speaker.split()[-1] if speaker.startswith('Speaker') else '1'
+        settings = self.speaker_settings.get(speaker_num, {})
+        
+        # Use fill color from settings if available
+        speaker_color = settings.get('fillColor', self.speaker_colors.get(speaker, "#FFFFFF"))
         ass_color = self.hex_to_ass_color(speaker_color)
         
         for word in self.viral_keywords:

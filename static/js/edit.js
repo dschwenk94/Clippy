@@ -15,6 +15,37 @@ class EditPage {
             3: '#00FF88'  // Green
         };
         
+        // New speaker styling settings
+        this.speakerSettings = {
+            1: {
+                font: 'Impact',
+                fillColor: '#FF4500',
+                outlineColor: '#000000',
+                outlineThickness: 2,
+                fontSize: 22
+            },
+            2: {
+                font: 'Impact',
+                fillColor: '#00BFFF',
+                outlineColor: '#000000',
+                outlineThickness: 2,
+                fontSize: 22
+            },
+            3: {
+                font: 'Impact',
+                fillColor: '#00FF88',
+                outlineColor: '#000000',
+                outlineThickness: 2,
+                fontSize: 22
+            }
+        };
+        
+        // Current active speaker tab
+        this.activeSpeaker = 1;
+        
+        // Color picker state
+        this.colorPickerTarget = null;
+        
         // End Screen settings
         this.endScreenEnabled = false;
         this.endScreenText = 'SUBSCRIBE';
@@ -301,12 +332,373 @@ class EditPage {
     }
 
     initializeColorPreviews() {
-        // Initialize color dots for all color selectors
-        document.querySelectorAll('.color-select').forEach(select => {
-            const selectedOption = select.options[select.selectedIndex];
-            const color = selectedOption.value;
-            select.setAttribute('value', color);
+        // Update preview with current speaker settings
+        this.updateCaptionPreview();
+    }
+    
+    initializeCaptionStylingControls() {
+        // Speaker tabs
+        document.querySelectorAll('.speaker-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const speaker = parseInt(e.target.dataset.speaker);
+                this.switchSpeakerTab(speaker);
+            });
         });
+        
+        // Font selectors
+        document.querySelectorAll('.font-select').forEach(select => {
+            select.addEventListener('change', (e) => {
+                const speaker = parseInt(e.target.dataset.speaker);
+                this.speakerSettings[speaker].font = e.target.value;
+                this.hasUnsavedChanges = true;
+                if (speaker === this.activeSpeaker) {
+                    this.updateCaptionPreview();
+                }
+            });
+        });
+        
+        // Color picker buttons
+        document.querySelectorAll('.color-picker-button').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const speaker = parseInt(button.dataset.speaker);
+                const colorType = button.dataset.colorType;
+                this.openColorPicker(speaker, colorType, button);
+            });
+        });
+        
+        // Font size sliders
+        document.querySelectorAll('.font-size-slider').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const speaker = parseInt(e.target.dataset.speaker);
+                const value = parseInt(e.target.value);
+                this.speakerSettings[speaker].fontSize = value;
+                
+                // Update value display
+                const valueSpan = e.target.nextElementSibling;
+                if (valueSpan) {
+                    valueSpan.textContent = `${value}px`;
+                }
+                
+                this.hasUnsavedChanges = true;
+                if (speaker === this.activeSpeaker) {
+                    this.updateCaptionPreview();
+                }
+            });
+        });
+        
+        // Outline thickness sliders
+        document.querySelectorAll('.outline-thickness-slider').forEach(slider => {
+            slider.addEventListener('input', (e) => {
+                const speaker = parseInt(e.target.dataset.speaker);
+                const value = parseFloat(e.target.value);
+                this.speakerSettings[speaker].outlineThickness = value;
+                
+                // Update value display
+                const valueSpan = e.target.nextElementSibling;
+                if (valueSpan) {
+                    valueSpan.textContent = `${value}px`;
+                }
+                
+                this.hasUnsavedChanges = true;
+                if (speaker === this.activeSpeaker) {
+                    this.updateCaptionPreview();
+                }
+            });
+        });
+        
+        // Apply to all buttons
+        document.querySelectorAll('.apply-all-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const sourceSpeaker = parseInt(e.target.dataset.speaker);
+                this.applySettingsToAllSpeakers(sourceSpeaker);
+            });
+        });
+        
+        // Initialize color picker
+        this.initializeColorPicker();
+    }
+    
+    switchSpeakerTab(speaker) {
+        this.activeSpeaker = speaker;
+        
+        // Update tab styles
+        document.querySelectorAll('.speaker-tab').forEach(tab => {
+            tab.classList.toggle('active', parseInt(tab.dataset.speaker) === speaker);
+        });
+        
+        // Show/hide panels
+        document.querySelectorAll('.speaker-settings-panel').forEach(panel => {
+            panel.classList.toggle('active', parseInt(panel.dataset.speaker) === speaker);
+        });
+        
+        // Update preview
+        this.updateCaptionPreview();
+    }
+    
+    updateCaptionPreview() {
+        const preview = document.getElementById('caption-preview');
+        if (!preview) return;
+        
+        const settings = this.speakerSettings[this.activeSpeaker];
+        const previewText = preview.querySelector('.preview-text');
+        
+        if (previewText) {
+            previewText.style.fontFamily = settings.font;
+            previewText.style.fontSize = `${settings.fontSize}px`;
+            previewText.style.color = settings.fillColor;
+            previewText.style.webkitTextStroke = `${settings.outlineThickness}px ${settings.outlineColor}`;
+            previewText.style.textStroke = `${settings.outlineThickness}px ${settings.outlineColor}`;
+            previewText.style.paintOrder = 'stroke fill';
+        }
+    }
+    
+    initializeColorPicker() {
+        const popup = document.getElementById('color-picker-popup');
+        const closeBtn = popup.querySelector('.color-picker-close');
+        const header = document.getElementById('color-picker-header');
+        
+        // Close button
+        closeBtn.addEventListener('click', () => {
+            this.closeColorPicker();
+        });
+        
+        // Color cells
+        document.querySelectorAll('.color-cell').forEach(cell => {
+            cell.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent closing when clicking color
+                const color = e.target.dataset.color;
+                this.selectColor(color);
+            });
+        });
+        
+        // Make draggable
+        this.makeDraggable(popup, header);
+        
+        // Close on outside click
+        popup.addEventListener('click', (e) => {
+            if (e.target === popup) {
+                this.closeColorPicker();
+            }
+        });
+    }
+    
+    selectColor(color) {
+        // Set selected color FIRST (ensure uppercase)
+        this.selectedColor = color.toUpperCase();
+        
+        // Update preview
+        this.updateColorPreview(this.selectedColor);
+        
+        // Highlight selected color
+        document.querySelectorAll('.color-cell').forEach(cell => {
+            cell.classList.remove('selected');
+            // Compare uppercase to handle case differences
+            if (cell.dataset.color.toUpperCase() === this.selectedColor) {
+                cell.classList.add('selected');
+            }
+        });
+        
+        // Update selected color display
+        document.getElementById('selected-color-value').textContent = this.selectedColor;
+        document.getElementById('selected-color-preview').style.backgroundColor = this.selectedColor;
+        
+        // Apply immediately
+        this.applyColorFromPicker();
+    }
+    
+    makeDraggable(element, handle) {
+        let isDragging = false;
+        let currentX;
+        let currentY;
+        let initialX;
+        let initialY;
+        let xOffset = 0;
+        let yOffset = 0;
+        
+        handle.style.cursor = 'move';
+        
+        handle.addEventListener('mousedown', dragStart);
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', dragEnd);
+        
+        function dragStart(e) {
+            initialX = e.clientX - xOffset;
+            initialY = e.clientY - yOffset;
+            
+            if (e.target === handle || handle.contains(e.target)) {
+                isDragging = true;
+                element.style.transition = 'none';
+            }
+        }
+        
+        function drag(e) {
+            if (isDragging) {
+                e.preventDefault();
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+                
+                xOffset = currentX;
+                yOffset = currentY;
+                
+                // Keep within viewport
+                const rect = element.getBoundingClientRect();
+                const maxX = window.innerWidth - rect.width;
+                const maxY = window.innerHeight - rect.height;
+                
+                currentX = Math.max(0, Math.min(currentX, maxX));
+                currentY = Math.max(0, Math.min(currentY, maxY));
+                
+                element.style.transform = `translate(${currentX}px, ${currentY}px)`;
+            }
+        }
+        
+        function dragEnd(e) {
+            initialX = currentX;
+            initialY = currentY;
+            isDragging = false;
+            element.style.transition = '';
+        }
+    }
+
+    
+    openColorPicker(speaker, colorType, button) {
+        const popup = document.getElementById('color-picker-popup');
+        
+        // Store current target
+        this.colorPickerTarget = { speaker, colorType, button };
+        
+        // Set current color
+        const currentColor = colorType === 'fill' 
+            ? this.speakerSettings[speaker].fillColor 
+            : this.speakerSettings[speaker].outlineColor;
+        
+        this.selectedColor = currentColor.toUpperCase();
+        
+        // Highlight the current color in the grid
+        document.querySelectorAll('.color-cell').forEach(cell => {
+            cell.classList.remove('selected');
+            if (cell.dataset.color.toUpperCase() === this.selectedColor) {
+                cell.classList.add('selected');
+            }
+        });
+        
+        // Update selected color display
+        document.getElementById('selected-color-value').textContent = this.selectedColor;
+        document.getElementById('selected-color-preview').style.backgroundColor = this.selectedColor;
+        
+        // Position popup near button (fixed positioning)
+        const rect = button.getBoundingClientRect();
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+        
+        popup.style.position = 'fixed';
+        popup.style.left = `${Math.min(rect.left, window.innerWidth - 350)}px`;
+        popup.style.top = `${Math.min(rect.bottom + 10, window.innerHeight - 400)}px`;
+        popup.style.transform = 'none'; // Reset any dragging transform
+        
+        // Show popup
+        popup.classList.remove('hidden');
+    }
+    
+    closeColorPicker() {
+        const popup = document.getElementById('color-picker-popup');
+        popup.classList.add('hidden');
+        this.colorPickerTarget = null;
+    }
+    
+    updateColorPreview(color) {
+        const preview = document.getElementById('selected-color-preview');
+        if (preview) {
+            preview.style.backgroundColor = color;
+        }
+    }
+    
+    applyColorFromPicker() {
+        if (!this.colorPickerTarget || !this.selectedColor) {
+            console.warn('applyColorFromPicker: Missing target or color', {
+                target: this.colorPickerTarget,
+                selectedColor: this.selectedColor
+            });
+            return;
+        }
+        
+        const { speaker, colorType, button } = this.colorPickerTarget;
+        const color = this.selectedColor;
+        
+        console.log('Applying color:', { speaker, colorType, color });
+        
+        // Update settings
+        if (colorType === 'fill') {
+            this.speakerSettings[speaker].fillColor = color;
+            // Also update the old speakerColors for backward compatibility
+            this.speakerColors[speaker] = color;
+        } else {
+            this.speakerSettings[speaker].outlineColor = color;
+        }
+        
+        // Update button
+        button.style.backgroundColor = color;
+        button.querySelector('.color-value').textContent = color;
+        
+        // Update preview if current speaker
+        if (speaker === this.activeSpeaker) {
+            this.updateCaptionPreview();
+        }
+        
+        // Update speaker tab color if fill color
+        if (colorType === 'fill') {
+            const tab = document.querySelector(`.speaker-tab[data-speaker="${speaker}"]`);
+            if (tab) {
+                tab.style.setProperty('--tab-color', color);
+            }
+        }
+        
+        this.hasUnsavedChanges = true;
+        // Don't close immediately - let user pick multiple colors if needed
+    }
+    
+    applySettingsToAllSpeakers(sourceSpeaker) {
+        const sourceSettings = this.speakerSettings[sourceSpeaker];
+        
+        // Copy settings to all speakers
+        for (let speaker = 1; speaker <= 3; speaker++) {
+            if (speaker !== sourceSpeaker) {
+                // Keep the original fill color but copy other settings
+                const originalFillColor = this.speakerSettings[speaker].fillColor;
+                this.speakerSettings[speaker] = {
+                    ...sourceSettings,
+                    fillColor: originalFillColor
+                };
+                
+                // Update UI for this speaker
+                const fontSelect = document.getElementById(`speaker-${speaker}-font`);
+                if (fontSelect) fontSelect.value = sourceSettings.font;
+                
+                const fontSizeSlider = document.getElementById(`speaker-${speaker}-font-size`);
+                if (fontSizeSlider) {
+                    fontSizeSlider.value = sourceSettings.fontSize;
+                    const sizeSpan = fontSizeSlider.nextElementSibling;
+                    if (sizeSpan) sizeSpan.textContent = `${sourceSettings.fontSize}px`;
+                }
+                
+                const outlineColorBtn = document.querySelector(`.color-picker-button[data-speaker="${speaker}"][data-color-type="outline"]`);
+                if (outlineColorBtn) {
+                    outlineColorBtn.style.backgroundColor = sourceSettings.outlineColor;
+                    outlineColorBtn.querySelector('.color-value').textContent = sourceSettings.outlineColor;
+                }
+                
+                const thicknessSlider = document.getElementById(`speaker-${speaker}-outline-thickness`);
+                if (thicknessSlider) {
+                    thicknessSlider.value = sourceSettings.outlineThickness;
+                    const valueSpan = thicknessSlider.nextElementSibling;
+                    if (valueSpan) valueSpan.textContent = `${sourceSettings.outlineThickness}px`;
+                }
+            }
+        }
+        
+        this.hasUnsavedChanges = true;
+        window.clippyBase.showSuccess('Settings applied to all speakers!');
     }
     
     initializeEventListeners() {
@@ -331,16 +723,9 @@ class EditPage {
             this.hasUnsavedChanges = true;
         });
         
-        // Color selectors
-        document.querySelectorAll('.color-select').forEach(select => {
-            select.addEventListener('change', (e) => {
-                const speaker = parseInt(e.target.dataset.speaker);
-                const color = e.target.value;
-                this.updateSpeakerColor(speaker, color);
-                this.hasUnsavedChanges = true;
-            });
-        });
-
+        // Initialize new caption styling controls
+        this.initializeCaptionStylingControls();
+        
         // End Screen controls
         this.initializeEndScreenControls();
         
@@ -482,6 +867,7 @@ class EditPage {
                     captions: updatedCaptions,
                     caption_position: this.captionPosition,
                     speaker_colors: this.speakerColors,
+                    speaker_settings: this.speakerSettings,  // Add new speaker settings
                     end_screen: {
                         enabled: this.endScreenEnabled,
                         text: this.endScreenText,
@@ -1081,37 +1467,321 @@ const editPageStyles = `
     background-color: #FF1493;
 }
 
-/* Color preview for dropdowns */
-#speaker-1-color[value="#FF4500"]:checked,
-.color-select[value="#FF4500"] {
-    border-color: #FF4500 !important;
+/* Speaker Tabs Styling */
+.speaker-tabs-container {
+    margin-top: var(--space-lg);
 }
 
-#speaker-2-color[value="#00BFFF"]:checked,
-.color-select[value="#00BFFF"] {
-    border-color: #00BFFF !important;
+.speaker-tabs {
+    display: flex;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-lg);
+    border-bottom: 2px solid var(--color-border);
+    padding-bottom: var(--space-sm);
 }
 
-#speaker-3-color[value="#00FF88"]:checked,
-.color-select[value="#00FF88"] {
-    border-color: #00FF88 !important;
+.speaker-tab {
+    padding: var(--space-sm) var(--space-lg);
+    background: transparent;
+    border: none;
+    color: var(--color-text-secondary);
+    font-size: var(--text-base);
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    transition: all var(--transition-base);
 }
 
-.color-select[value="#FFD700"] {
-    border-color: #FFD700 !important;
+.speaker-tab:hover {
+    color: var(--color-text-primary);
 }
 
-.color-select[value="#FF1493"] {
-    border-color: #FF1493 !important;
+.speaker-tab.active {
+    color: var(--tab-color, var(--color-primary));
+    font-weight: 600;
 }
 
-.color-select[value="#FFFFFF"] {
-    border-color: #FFFFFF !important;
+.speaker-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: calc(-1 * var(--space-sm) - 2px);
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--tab-color, var(--color-primary));
+    border-radius: 3px 3px 0 0;
 }
 
-.color-select[value="#FFFFFF"]::before {
-    background-color: #FFFFFF;
+/* Speaker Settings Panel */
+.speaker-settings-panel {
+    display: none;
+    animation: fadeIn var(--transition-base) ease-out;
+}
+
+.speaker-settings-panel.active {
+    display: block;
+}
+
+.settings-compact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    margin-bottom: var(--space-lg);
+}
+
+.settings-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-md);
+}
+
+.settings-row.sliders-row {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* Font Select Styling */
+.font-select {
+    font-family: inherit;
+}
+
+.font-select option {
+    padding: var(--space-xs);
+}
+
+/* Color Picker Button */
+.color-picker-button {
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all var(--transition-base);
+    background: var(--color-surface);
+    position: relative;
+    overflow: hidden;
+}
+
+.color-picker-button::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: currentColor;
+    opacity: 0.15;
+    z-index: 0;
+}
+
+.color-picker-button:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-1px);
+}
+
+.color-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--color-text-primary);
+    z-index: 1;
+    position: relative;
+}
+
+/* Apply All Button */
+.apply-all-btn {
+    width: 100%;
+    margin-top: var(--space-md);
+}
+
+/* Caption Preview */
+.caption-preview-section {
+    margin-top: var(--space-xl);
+    padding-top: var(--space-xl);
+    border-top: 2px solid var(--color-border);
+}
+
+.caption-preview-section h4 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin-bottom: var(--space-md);
+}
+
+.caption-preview-wrapper {
+    background: #000;
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 120px;
+}
+
+.caption-preview {
+    text-align: center;
+}
+
+.preview-text {
+    font-size: 48px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: inline-block;
+}
+
+/* Color Picker Popup */
+.color-picker-popup {
+    position: fixed;
+    background: var(--color-surface-elevated);
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-xl);
+    z-index: 1000;
+    width: 320px;
+    max-height: 500px;
+    overflow: hidden;
+}
+
+.color-picker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-surface-overlay);
+    user-select: none;
+}
+
+.color-picker-title {
+    font-size: var(--text-base);
+    font-weight: 600;
+}
+
+.color-picker-close {
+    background: none;
+    border: none;
+    font-size: var(--text-xl);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    transition: all var(--transition-base);
+}
+
+.color-picker-close:hover {
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+}
+
+.color-picker-body {
+    padding: var(--space-md);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.color-table-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.color-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.color-section h4 {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.color-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 4px;
+}
+
+.color-cell {
+    width: 32px;
+    height: 32px;
+    border: 2px solid transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all var(--transition-base);
+    position: relative;
+}
+
+.color-cell:hover {
+    transform: scale(1.1);
+    border-color: var(--color-primary);
+    z-index: 1;
+}
+
+.color-cell.selected {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.3);
+}
+
+.color-cell.selected::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-weight: bold;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Add border to white color cells */
+.color-cell[data-color="#FFFFFF"],
+.color-cell[data-color="#F5F5F5"],
+.color-cell[data-color="#FFC0CB"] {
     border: 1px solid var(--color-border);
+}
+
+.color-selection-info {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-sm);
+    background: var(--color-surface-overlay);
+    border-radius: var(--radius-md);
+    margin-top: var(--space-sm);
+}
+
+.selected-color-preview {
+    width: 24px;
+    height: 24px;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--color-border);
+}
+
+.selected-color-value {
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-weight: 500;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 /* End Screen Controls */

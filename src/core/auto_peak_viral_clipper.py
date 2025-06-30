@@ -503,7 +503,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             return False
     
     def update_captions_ass(self, subtitle_path: str, updated_captions: List[Dict], duration: float = 30.0, 
-                          caption_position: str = 'bottom', speaker_colors: Dict = None, end_screen: Dict = None) -> bool:
+                          caption_position: str = 'bottom', speaker_colors: Dict = None, speaker_settings: Dict = None, end_screen: Dict = None) -> bool:
         """
         🆕 Update ASS captions with edited text and speaker assignments
         Maintains proper speaker colors in pop-out effects and video duration
@@ -541,6 +541,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 video_duration=duration,
                 caption_position=caption_position,
                 speaker_colors=speaker_colors,
+                speaker_settings=speaker_settings,
                 end_screen=end_screen
             )
         except Exception as e:
