@@ -528,6 +528,7 @@ def update_captions():
     captions = data.get('captions', [])
     caption_position = data.get('caption_position', 'bottom')
     speaker_colors = data.get('speaker_colors', {})
+    speaker_settings = data.get('speaker_settings', {})
     end_screen = data.get('end_screen', {})
     
     if job_id not in active_jobs:
@@ -560,7 +561,7 @@ def update_captions():
         # Start background regeneration
         regeneration_thread = threading.Thread(
             target=regenerate_video_background_ass, 
-            args=(job_id, captions, caption_position, speaker_colors, end_screen)
+            args=(job_id, captions, caption_position, speaker_colors, speaker_settings, end_screen)
         )
         regeneration_thread.daemon = True
         regeneration_thread.start()
@@ -892,7 +893,7 @@ def extract_captions_from_ass_fixed(ass_file_path: str):
         return []
 
 
-def regenerate_video_background_ass(job_id, updated_captions, caption_position='bottom', speaker_colors=None, end_screen=None):
+def regenerate_video_background_ass(job_id, updated_captions, caption_position='bottom', speaker_colors=None, speaker_settings=None, end_screen=None):
     """Background thread for video regeneration using ASS caption system"""
     try:
         job = active_jobs[job_id]
@@ -944,6 +945,7 @@ def regenerate_video_background_ass(job_id, updated_captions, caption_position='
             video_duration,
             caption_position,
             speaker_colors,
+            speaker_settings,
             end_screen
         )
         
