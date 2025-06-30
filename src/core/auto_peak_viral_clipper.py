@@ -541,6 +541,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 video_duration=duration,
                 caption_position=caption_position,
                 speaker_colors=speaker_colors,
+                speaker_settings=speaker_settings,
                 end_screen=end_screen
             )
         except Exception as e:
