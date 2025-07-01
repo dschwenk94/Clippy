@@ -1,0 +1,573 @@
+/* Edit Page Specific Styles - Vertical Caption Position Slider */
+
+/* VERTICAL CAPTION POSITION SLIDER */
+.video-container-with-slider {
+    display: flex;
+    gap: var(--spacing-sm);
+    position: relative;
+    align-items: stretch;
+    justify-content: center;
+}
+
+.caption-position-slider-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 var(--spacing-sm);
+    background: var(--bg-accent);
+    border-radius: var(--radius-md);
+    min-width: 50px;
+    height: 100%;
+    position: relative;
+}
+
+.slider-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: var(--spacing-sm);
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%) rotate(180deg);
+}
+
+.vertical-slider {
+    -webkit-appearance: slider-vertical;
+    width: 30px;
+    height: 100%;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Custom vertical slider styling */
+.vertical-slider::-webkit-slider-track {
+    width: 6px;
+    height: 100%;
+    background: linear-gradient(to bottom, 
+        var(--accent-primary) 0%, 
+        var(--bg-primary) 50%, 
+        var(--accent-primary) 100%);
+    border-radius: 3px;
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+.vertical-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--accent-primary);
+    border-radius: 50%;
+    cursor: grab;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.vertical-slider::-webkit-slider-thumb:hover {
+    background: var(--accent-hover);
+    transform: scale(1.1);
+}
+
+.vertical-slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+}
+
+/* Firefox */
+.vertical-slider::-moz-range-track {
+    width: 6px;
+    height: 100%;
+    background: linear-gradient(to bottom, 
+        var(--accent-primary) 0%, 
+        var(--bg-primary) 50%, 
+        var(--accent-primary) 100%);
+    border-radius: 3px;
+    box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.3);
+}
+
+.vertical-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--accent-primary);
+    border-radius: 50%;
+    cursor: grab;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+    border: none;
+}
+
+/* Position markers */
+.position-markers {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    padding: var(--spacing-xs) 0;
+}
+
+.marker {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1;
+}
+
+/* Video wrapper for vertical videos */
+.video-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    background: black;
+    aspect-ratio: 9/16; /* Vertical video for shorts */
+    width: 100%;
+    max-width: 600px; /* Increased from 400px */
+    margin: 0 auto;
+}
+
+.video-player {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.caption-position-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-primary);
+    opacity: 0.5;
+    pointer-events: none;
+    transition: top 0.2s ease;
+}
+
+.caption-position-indicator::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -4px;
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 8px solid var(--accent-primary);
+    transform: translateX(-50%);
+}
+
+/* COMPACT UI STYLES */
+
+/* Compact video info card */
+.video-info-card.compact {
+    padding: var(--spacing-sm);
+}
+
+.video-info-card.compact h3 {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-xs);
+}
+
+.video-info-grid {
+    display: flex;
+    gap: var(--spacing-md);
+    font-size: 0.875rem;
+}
+
+/* End Screen Controls */
+.end-screen-controls {
+    padding: var(--spacing-lg);
+    background: var(--bg-accent);
+    border-radius: var(--border-radius);
+    margin-top: var(--spacing-md);
+}
+
+.end-screen-controls h3 {
+    font-size: 1.25rem;
+    color: var(--accent-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.section-description {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-md);
+}
+
+.message-group {
+    margin-bottom: var(--spacing-lg);
+}
+
+.end-screen-textarea {
+    width: 100%;
+    padding: var(--spacing-sm);
+    background: var(--bg-primary);
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    color: var(--text-primary);
+    font-size: 1rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+.end-screen-textarea:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
+.control-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.color-row {
+    display: flex;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-md);
+}
+
+.control-group-stacked {
+    flex: 1;
+}
+
+.end-screen-preview {
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.end-screen-preview label {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: var(--spacing-sm);
+}
+
+.preview-box {
+    background: var(--bg-primary);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    text-align: center;
+    min-height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#end-screen-preview-text {
+    font-size: 28px;
+    font-family: Impact;
+    color: #FFFFFF;
+    -webkit-text-stroke: 3px #000000;
+    text-stroke: 3px #000000;
+    paint-order: stroke fill;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+/* Compact caption controls */
+.caption-controls.compact {
+    padding: var(--spacing-sm);
+}
+
+.caption-controls.compact h3 {
+    display: none; /* Remove the "Caption Settings" header */
+}
+
+/* Compact speaker settings */
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-sm);
+}
+
+.settings-grid .control-group {
+    margin-bottom: 0;
+}
+
+.settings-grid label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.settings-grid .control-select {
+    padding: 4px 8px;
+    font-size: 0.875rem;
+}
+
+.settings-grid .control-slider {
+    height: 4px;
+}
+
+.settings-grid .slider-value {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Compact color picker button */
+.color-picker-button {
+    width: 100%;
+    height: 32px;
+    border: 2px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.color-picker-button:hover {
+    border-color: var(--accent-primary);
+}
+
+.color-swatch {
+    position: absolute;
+    inset: 0;
+    background: inherit;
+}
+
+/* Inline preview */
+.caption-preview-inline {
+    padding: var(--spacing-sm);
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    text-align: center;
+    margin-top: var(--spacing-sm);
+}
+
+.caption-preview-inline .preview-text {
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Hide elements we don't need */
+.caption-preview-section,
+.apply-all-btn {
+    display: none;
+}
+
+/* Edit page layout adjustments */
+.edit-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: var(--spacing-md);
+}
+
+.edit-container {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: var(--spacing-lg);
+    background: transparent;
+    padding: 0;
+    border: none;
+}
+
+.video-panel,
+.caption-panel {
+    background: var(--bg-secondary);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+
+.panel-header {
+    margin-bottom: var(--spacing-md);
+}
+
+.panel-header h2 {
+    font-size: 1.5rem;
+    color: var(--accent-primary);
+    margin-bottom: 0;
+}
+
+.panel-description {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    .edit-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .video-container-with-slider {
+        flex-direction: column;
+    }
+    
+    .caption-position-slider-container {
+        flex-direction: row;
+        width: 100%;
+        height: 60px;
+        min-width: auto;
+    }
+    
+    .vertical-slider {
+        width: 100%;
+        height: 30px;
+        -webkit-appearance: none;
+    }
+    
+    .slider-label {
+        writing-mode: initial;
+        text-orientation: initial;
+        margin-bottom: 0;
+        margin-right: var(--spacing-sm);
+    }
+    
+    .position-markers {
+        flex-direction: row;
+        height: auto;
+        width: 100%;
+        margin-top: 0;
+        margin-left: var(--spacing-sm);
+    }
+}
+
+/* Progress breadcrumb styles */
+.progress-breadcrumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--bg-secondary);
+    border-radius: var(--border-radius);
+}
+
+.breadcrumb-item {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.breadcrumb-item.completed {
+    color: var(--success);
+}
+
+.breadcrumb-item.current {
+    color: var(--accent-primary);
+    background: var(--bg-accent);
+    border-radius: 20px;
+}
+
+.breadcrumb-separator {
+    margin: 0 var(--spacing-sm);
+    color: var(--text-muted);
+}
+
+/* Button styles */
+.btn {
+    padding: 10px 20px;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(255, 107, 53, 0.3);
+}
+
+.btn-secondary {
+    background: var(--bg-accent);
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background: var(--bg-primary);
+    border-color: var(--accent-primary);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+}
+
+.btn-ghost:hover {
+    color: var(--text-primary);
+    background: var(--bg-accent);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.875rem;
+}
+
+/* Edit actions */
+.edit-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-color);
+}
+
+.action-group {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+/* Update progress */
+.update-progress {
+    margin-top: var(--spacing-md);
+}
+
+.update-status {
+    text-align: center;
+}
+
+.update-text {
+    display: block;
+    margin-bottom: var(--spacing-sm);
+    color: var(--text-secondary);
+}
+
+.update-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--bg-accent);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.update-progress-fill {
+    height: 100%;
+    background: var(--accent-primary);
+    transition: width 0.3s ease;
+}

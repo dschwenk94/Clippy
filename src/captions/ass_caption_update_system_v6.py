@@ -36,7 +36,7 @@ class ASSCaptionUpdateSystemV6:
             'oh my god', 'what the hell', 'holy shit', 'no way'
         ]
     
-    def update_ass_file_with_edits(self, original_ass_path: str, updated_captions: List[Dict], output_path: str = None, video_duration: float = 30.0, caption_position: str = 'bottom', speaker_colors: Dict = None, speaker_settings: Dict = None, end_screen: Dict = None) -> bool:
+    def update_ass_file_with_edits(self, original_ass_path: str, updated_captions: List[Dict], output_path: str = None, video_duration: float = 30.0, caption_position: str = 'bottom', caption_position_percent: float = 80, speaker_colors: Dict = None, speaker_settings: Dict = None, end_screen: Dict = None) -> bool:
         """Update ASS file PRESERVING ORIGINAL SPEECH TIMING"""
         try:
             print(f"🔍 update_ass_file_with_edits called with:")
@@ -44,6 +44,7 @@ class ASSCaptionUpdateSystemV6:
             print(f"  - updated_captions count: {len(updated_captions) if updated_captions else 0}")
             print(f"  - video_duration: {video_duration}")
             print(f"  - caption_position: {caption_position}")
+            print(f"  - caption_position_percent: {caption_position_percent}")
             print(f"  - speaker_colors: {speaker_colors}")
             print(f"  - speaker_settings: {speaker_settings}")
             print(f"  - end_screen: {end_screen}")
@@ -107,6 +108,7 @@ class ASSCaptionUpdateSystemV6:
             print(f"📝 Creating ASS file with:")
             print(f"  - Captions: {len(speech_synced_captions)}")
             print(f"  - Position: {caption_position}")
+            print(f"  - Position percent: {caption_position_percent}%")
             print(f"  - Duration: {video_duration}")
             print(f"  - Actual content end: {actual_content_end}s")
             print(f"  - End screen enabled: {end_screen.get('enabled') if end_screen else False}")
@@ -115,6 +117,7 @@ class ASSCaptionUpdateSystemV6:
             new_ass_content = self.create_speech_synced_ass_file(
                 speech_synced_captions, 
                 caption_position, 
+                caption_position_percent,
                 actual_content_end,  # Use actual content end instead of video_duration
                 end_screen
             )
@@ -337,14 +340,14 @@ class ASSCaptionUpdateSystemV6:
         
         return adjusted_captions
     
-    def create_speech_synced_ass_file(self, captions: List[Dict], caption_position: str = 'bottom', video_duration: float = 30.0, end_screen: Dict = None) -> str:
+    def create_speech_synced_ass_file(self, captions: List[Dict], caption_position: str = 'bottom', caption_position_percent: float = 80, video_duration: float = 30.0, end_screen: Dict = None) -> str:
         """Create ASS file with speech-synced timing and position"""
         
         # Get unique speakers
         unique_speakers = set(cap.get('speaker', 'Speaker 1') for cap in captions)
         
         # Create styles section with position
-        styles_section = self.create_styles_section(unique_speakers, caption_position, end_screen)
+        styles_section = self.create_styles_section(unique_speakers, caption_position, caption_position_percent, end_screen)
         
         # Create dialogue section with speech-synced timing
         dialogue_section = self.create_dialogue_section(captions)
@@ -376,18 +379,48 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         
         return ass_content
     
-    def create_styles_section(self, speakers: set, caption_position: str = 'bottom', end_screen: Dict = None) -> str:
+    def create_styles_section(self, speakers: set, caption_position: str = 'bottom', caption_position_percent: float = 80, end_screen: Dict = None) -> str:
         """Create styles section for all speakers with position"""
         styles = []
         
-        # Determine vertical margin based on position
-        # MarginV controls vertical position (higher number = higher on screen)
-        if caption_position == 'top':
-            margin_v = 200  # Offset from top (similar to bottom offset)
+        # Determine vertical margin based on position or percentage
+        # IMPORTANT: ASS MarginV is distance from bottom of video
+        # We need to convert from "percent from top" to a reasonable margin range
+        # Using a more conservative range that works for most videos
+        
+        if caption_position_percent is not None:
+            # Convert percentage from top to margin from bottom
+            # The orange indicator shows where the TOP of the caption should be
+            # ASS MarginV positions the BOTTOM of the caption area
+            
+            # For a typical 720p video:
+            # Total height ~720px
+            # We'll use a more direct calculation
+            
+            # Assume video height of 720 (common for shorts)
+            # This gives us a good approximation that works across resolutions
+            video_height_estimate = 720
+            
+            # Calculate position from top in pixels
+            position_from_top = (caption_position_percent / 100) * video_height_estimate
+            
+            # Convert to margin from bottom
+            # Subtract from total height to get distance from bottom
+            margin_from_bottom = video_height_estimate - position_from_top
+            
+            # Scale down to ASS margin range (roughly 1/3 to 1/2 of pixel values work well)
+            margin_v = int(margin_from_bottom * 0.35)
+            
+            # Ensure reasonable bounds
+            margin_v = max(10, min(margin_v, 250))
+            
+            print(f"   Caption position: {caption_position_percent}% from top = {position_from_top:.0f}px from top = margin_v {margin_v}")
+        elif caption_position == 'top':
+            margin_v = 240  # Near top
         elif caption_position == 'middle':
-            margin_v = 150  # Middle of screen
+            margin_v = 125  # Middle
         else:  # bottom (default)
-            margin_v = 50   # Current bottom position
+            margin_v = 10   # Near bottom
         
         for speaker in speakers:
             # Get speaker number from speaker name (e.g., "Speaker 1" -> "1")
@@ -410,13 +443,22 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
             # Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
             style_line = f"Style: {speaker},{font},{font_size},{ass_fill_color},&H000000FF,{ass_outline_color},&H80000000,1,0,0,0,100,100,0,0,1,{outline_thickness},1,2,30,30,{margin_v},1"
             styles.append(style_line)
+            print(f"  - Added {speaker} style: font={font}, size={font_size}, margin={margin_v}")
         
         # Add end screen style if enabled
         if end_screen and end_screen.get('enabled'):
-            end_color = end_screen.get('color', '#FF4500')
-            end_ass_color = self.hex_to_ass_color(end_color)
+            # Get styling properties from end screen settings
+            end_font = end_screen.get('font', 'Impact')
+            end_font_size = end_screen.get('fontSize', 28)
+            end_fill_color = end_screen.get('fillColor', '#FFFFFF')
+            end_outline_color = end_screen.get('outlineColor', '#000000')
+            end_outline_thickness = end_screen.get('outlineThickness', 3)
             
-            # Determine end screen position
+            # Convert colors to ASS format
+            end_ass_fill_color = self.hex_to_ass_color(end_fill_color)
+            end_ass_outline_color = self.hex_to_ass_color(end_outline_color)
+            
+            # Determine end screen position (always middle for now)
             end_position = end_screen.get('position', 'middle')
             if end_position == 'top':
                 end_margin_v = 200   # Top margin - push down from top
@@ -428,11 +470,12 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
                 end_margin_v = 150   # Center with vertical adjustment to ensure visibility
                 alignment = 5       # Center alignment
             
-            # Larger, bold Impact font for end screen with outline
+            # End screen style with custom styling
             # Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-            end_style = f"Style: EndScreen,Impact,28,{end_ass_color},&H000000FF,&H00000000,&H80000000,1,0,0,0,100,100,0,0,1,3,2,{alignment},10,10,{end_margin_v},1"
+            end_style = f"Style: EndScreen,{end_font},{end_font_size},{end_ass_fill_color},&H000000FF,{end_ass_outline_color},&H80000000,1,0,0,0,100,100,0,0,1,{end_outline_thickness},2,{alignment},10,10,{end_margin_v},1"
             styles.append(end_style)
-            print(f"  - Added EndScreen style with alignment {alignment}, margin {end_margin_v}")
+            print(f"  - Added EndScreen style: font={end_font}, size={end_font_size}, fill={end_fill_color}, outline={end_outline_color}({end_outline_thickness}px)")
+            print(f"  - Position: alignment={alignment}, margin={end_margin_v}")
         
         return "\n".join(styles)
     
@@ -464,6 +507,9 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         text = end_screen.get('text', 'SUBSCRIBE')
         duration = float(end_screen.get('duration', 3.0))
         position = end_screen.get('position', 'middle')
+        
+        # Store end screen settings for style generation
+        self.end_screen_settings = end_screen
         
         print(f"🎬 Creating end screen dialogue:")
         print(f"   Text: {text}")

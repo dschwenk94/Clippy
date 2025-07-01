@@ -1,0 +1,41 @@
+/* Caption Slider Override Fix - Load this after other styles */
+
+/* Ensure video is properly sized */
+.video-panel .video-wrapper {
+    max-width: 600px !important;
+    aspect-ratio: 9/16 !important;
+}
+
+/* Fix slider container height to match video */
+.video-panel .caption-position-slider-wrapper {
+    height: auto !important;
+    align-self: stretch !important;
+}
+
+/* Ensure slider takes full height */
+.video-panel .slider-track-container {
+    height: 100% !important;
+}
+
+.video-panel .slider-vertical-wrapper {
+    flex: 1 !important;
+    min-height: 400px !important;
+}
+
+/* Center the slider track */
+.video-panel .vertical-slider {
+    width: 40px !important;
+    position: relative !important;
+}
+
+.video-panel .vertical-slider::-webkit-slider-track {
+    position: relative !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}
+
+.video-panel .vertical-slider::-moz-range-track {
+    position: relative !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+}

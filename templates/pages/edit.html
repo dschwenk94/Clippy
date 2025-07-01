@@ -3,6 +3,12 @@
 {% block title %}Edit Captions - Clippy{% endblock %}
 {% block description %}Edit and customize captions for your viral clip{% endblock %}
 
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/edit.css') }}?v=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/caption-slider.css') }}?v=1.0">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/caption-slider-fix.css') }}?v=1.0">
+{% endblock %}
+
 {% block progress_indicator %}
 <div class="progress-breadcrumb">
     <div class="breadcrumb-item completed">1. Input</div>
@@ -30,15 +36,34 @@
                 </button>
             </div>
             
-            <div class="video-wrapper">
-                <video id="clip-video" controls class="video-player">
-                    <source id="video-source" src="" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
+            <div class="video-container-with-slider">
+                <!-- Vertical Position Slider -->
+                <div class="caption-position-slider-wrapper">
+                    <div class="slider-header">CAPTION<br>POSITION</div>
+                    <div class="slider-track-container">
+                        <div class="position-label top">TOP</div>
+                        <div class="slider-vertical-wrapper">
+                            <input type="range" id="caption-position-slider" class="vertical-slider" 
+                                   min="0" max="100" value="80" step="1"
+                                   orient="vertical">
+                        </div>
+                        <div class="position-label bottom">BOT</div>
+                    </div>
+                </div>
+                
+                <!-- Video Wrapper -->
+                <div class="video-wrapper">
+                    <video id="clip-video" controls class="video-player">
+                        <source id="video-source" src="" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <!-- Caption position indicator line -->
+                    <div id="caption-position-indicator" class="caption-position-indicator"></div>
+                </div>
             </div>
             
             <!-- Video Info -->
-            <div class="video-info-card">
+            <div class="video-info-card compact">
                 <h3>Clip Details</h3>
                 <div class="video-info-grid" id="clip-details">
                     <!-- Populated by JavaScript -->
@@ -47,53 +72,91 @@
             
             <!-- End Screen Section -->
             <div class="end-screen-controls">
-                <h3>End Screen</h3>
-                <p class="section-description">Add a call-to-action message at the end of your clip</p>
+                <h3>End Screen Message</h3>
+                <p class="section-description">Add a call-to-action at the end of your clip</p>
                 
                 <div class="control-group">
                     <label class="checkbox-label">
                         <input type="checkbox" id="end-screen-enabled" class="control-checkbox">
-                        <span>Enable End Screen Message</span>
+                        <span>Enable End Screen</span>
                     </label>
                 </div>
                 
                 <div id="end-screen-settings" class="end-screen-settings hidden">
-                    <div class="control-group">
+                    <!-- Message Text -->
+                    <div class="control-group message-group">
                         <label for="end-screen-text">Message Text</label>
-                        <textarea id="end-screen-text" class="control-textarea" 
-                                placeholder="Enter your message (e.g., SUBSCRIBE for more!)" 
-                                rows="3">SUBSCRIBE</textarea>
-                        <span class="control-hint">1-3 sentences maximum</span>
+                        <textarea id="end-screen-text" class="control-textarea end-screen-textarea" 
+                                  placeholder="Enter your end screen message (e.g., LIKE & SUBSCRIBE)" 
+                                  rows="3">LIKE & SUBSCRIBE</textarea>
+                        <span class="control-hint">This message will appear at the end of your clip</span>
                     </div>
                     
-                    <div class="control-group">
-                        <label for="end-screen-duration">Duration (seconds)</label>
-                        <div class="slider-container">
-                            <input type="range" id="end-screen-duration" class="control-slider" 
-                                   min="0.5" max="5" step="0.5" value="3">
-                            <span id="duration-value" class="slider-value">3.0s</span>
+                    <!-- Font and Duration -->
+                    <div class="control-row">
+                        <div class="control-group">
+                            <label for="end-screen-font">Font Style</label>
+                            <select id="end-screen-font" class="control-select">
+                                <option value="Impact">Impact</option>
+                                <option value="Arial Black">Arial Black</option>
+                                <option value="Bebas Neue">Bebas Neue</option>
+                                <option value="Montserrat">Montserrat</option>
+                                <option value="Roboto">Roboto</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label for="end-screen-duration">Display Duration</label>
+                            <div class="slider-container">
+                                <input type="range" id="end-screen-duration" class="control-slider" 
+                                       min="1" max="5" step="0.5" value="2">
+                                <span class="slider-value">2s</span>
+                            </div>
                         </div>
                     </div>
                     
-                    <div class="control-group">
-                        <label for="end-screen-position">Entry Position</label>
-                        <select id="end-screen-position" class="control-select">
-                            <option value="top">From Top</option>
-                            <option value="middle" selected>From Middle</option>
-                            <option value="bottom">From Bottom</option>
-                        </select>
+                    <!-- Color Controls -->
+                    <div class="control-row color-row">
+                        <div class="control-group-stacked">
+                            <div class="control-group">
+                                <label>Fill Color</label>
+                                <button class="color-picker-button end-screen-color" id="end-screen-fill-color" data-color-type="fill" style="background-color: #FFFFFF">
+                                    <span class="color-swatch"></span>
+                                </button>
+                            </div>
+                            <div class="control-group" style="margin-top: 10px;">
+                                <label>Outline Color</label>
+                                <button class="color-picker-button end-screen-color" id="end-screen-outline-color" data-color-type="outline" style="background-color: #000000">
+                                    <span class="color-swatch"></span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group-stacked">
+                            <div class="control-group">
+                                <label>Font Size</label>
+                                <div class="slider-container">
+                                    <input type="range" id="end-screen-font-size" class="control-slider" 
+                                           min="20" max="40" step="1" value="28">
+                                    <span class="slider-value">28px</span>
+                                </div>
+                            </div>
+                            <div class="control-group" style="margin-top: 10px;">
+                                <label>Outline Thickness</label>
+                                <div class="slider-container">
+                                    <input type="range" id="end-screen-outline-thickness" class="control-slider" 
+                                           min="0" max="5" step="0.5" value="3">
+                                    <span class="slider-value">3px</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="control-group">
-                        <label for="end-screen-color">Message Color</label>
-                        <select id="end-screen-color" class="control-select color-select">
-                            <option value="#FF4500" selected data-color="#FF4500">Red</option>
-                            <option value="#00BFFF" data-color="#00BFFF">Blue</option>
-                            <option value="#FFD700" data-color="#FFD700">Yellow</option>
-                            <option value="#00FF88" data-color="#00FF88">Green</option>
-                            <option value="#FF1493" data-color="#FF1493">Pink</option>
-                            <option value="#FFFFFF" data-color="#FFFFFF">White</option>
-                        </select>
+                    <!-- Preview -->
+                    <div class="end-screen-preview">
+                        <label>Preview</label>
+                        <div class="preview-box">
+                            <span id="end-screen-preview-text" class="preview-text">LIKE & SUBSCRIBE</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -107,18 +170,7 @@
             </div>
             
             <!-- Caption Controls Section -->
-            <div class="caption-controls">
-                <h3>Caption Settings</h3>
-                
-                <div class="control-group">
-                    <label for="caption-position">Caption Position</label>
-                    <select id="caption-position" class="control-select">
-                        <option value="top">Top</option>
-                        <option value="middle">Middle</option>
-                        <option value="bottom" selected>Bottom</option>
-                    </select>
-                </div>
-                
+            <div class="caption-controls compact">
                 <!-- Speaker Tabs -->
                 <div class="speaker-tabs-container">
                     <div class="speaker-tabs">
@@ -135,186 +187,146 @@
                     
                     <!-- Speaker Settings Panels -->
                     <div class="speaker-settings-panel active" data-speaker="1">
-                        <div class="settings-compact">
-                            <!-- First row: Font, Fill Color, Outline Color -->
-                            <div class="settings-row">
-                                <div class="control-group">
-                                    <label for="speaker-1-font">Font</label>
-                                    <select id="speaker-1-font" class="control-select font-select" data-speaker="1">
-                                        <option value="Impact" style="font-family: Impact">Impact</option>
-                                        <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
-                                        <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
-                                        <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
-                                        <option value="Roboto" style="font-family: Roboto">Roboto</option>
-                                        <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="speaker-1-fill-color">Fill Color</label>
-                                    <button class="color-picker-button" data-speaker="1" data-color-type="fill" style="background-color: #FF4500">
-                                        <span class="color-value">#FF4500</span>
-                                    </button>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="speaker-1-outline-color">Outline Color</label>
-                                    <button class="color-picker-button" data-speaker="1" data-color-type="outline" style="background-color: #000000">
-                                        <span class="color-value">#000000</span>
-                                    </button>
-                                </div>
+                        <div class="settings-grid">
+                            <div class="control-group">
+                                <label>Font</label>
+                                <select id="speaker-1-font" class="control-select font-select" data-speaker="1">
+                                    <option value="Impact">Impact</option>
+                                    <option value="Arial Black">Arial Black</option>
+                                    <option value="Bebas Neue">Bebas Neue</option>
+                                    <option value="Montserrat">Montserrat</option>
+                                    <option value="Roboto">Roboto</option>
+                                </select>
                             </div>
                             
-                            <!-- Second row: Font Size and Outline Thickness -->
-                            <div class="settings-row sliders-row">
-                                <div class="control-group">
-                                    <label for="speaker-1-font-size">Font Size</label>
-                                    <div class="slider-container">
-                                        <input type="range" id="speaker-1-font-size" class="control-slider font-size-slider" 
-                                               data-speaker="1" min="16" max="32" step="1" value="22">
-                                        <span class="slider-value">22px</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="speaker-1-outline-thickness">Outline Thickness</label>
-                                    <div class="slider-container">
-                                        <input type="range" id="speaker-1-outline-thickness" class="control-slider outline-thickness-slider" 
-                                               data-speaker="1" min="1" max="5" step="0.5" value="2">
-                                        <span class="slider-value">2px</span>
-                                    </div>
-                                </div>
+                            <div class="control-group">
+                                <label>Size</label>
+                                <input type="range" id="speaker-1-font-size" class="control-slider font-size-slider" 
+                                       data-speaker="1" min="16" max="32" step="1" value="22">
+                                <span class="slider-value">22px</span>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Fill</label>
+                                <button class="color-picker-button" data-speaker="1" data-color-type="fill" style="background-color: #FF4500">
+                                    <span class="color-swatch"></span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Outline</label>
+                                <button class="color-picker-button" data-speaker="1" data-color-type="outline" style="background-color: #000000">
+                                    <span class="color-swatch"></span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Thickness</label>
+                                <input type="range" id="speaker-1-outline-thickness" class="control-slider outline-thickness-slider" 
+                                       data-speaker="1" min="1" max="5" step="0.5" value="2">
+                                <span class="slider-value">2px</span>
                             </div>
                         </div>
                         
-                        <button class="btn btn-secondary apply-all-btn" data-speaker="1">
-                            Apply Settings to All Speakers
-                        </button>
+                        <!-- Compact Preview -->
+                        <div class="caption-preview-inline" data-speaker="1">
+                            <span class="preview-text">Preview</span>
+                        </div>
                     </div>
                     
                     <div class="speaker-settings-panel" data-speaker="2">
-                        <div class="settings-compact">
-                            <!-- First row: Font, Fill Color, Outline Color -->
-                            <div class="settings-row">
-                                <div class="control-group">
-                                    <label for="speaker-2-font">Font</label>
-                                    <select id="speaker-2-font" class="control-select font-select" data-speaker="2">
-                                        <option value="Impact" style="font-family: Impact">Impact</option>
-                                        <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
-                                        <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
-                                        <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
-                                        <option value="Roboto" style="font-family: Roboto">Roboto</option>
-                                        <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="speaker-2-fill-color">Fill Color</label>
-                                    <button class="color-picker-button" data-speaker="2" data-color-type="fill" style="background-color: #00BFFF">
-                                        <span class="color-value">#00BFFF</span>
-                                    </button>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="speaker-2-outline-color">Outline Color</label>
-                                    <button class="color-picker-button" data-speaker="2" data-color-type="outline" style="background-color: #000000">
-                                        <span class="color-value">#000000</span>
-                                    </button>
-                                </div>
+                        <div class="settings-grid">
+                            <div class="control-group">
+                                <label>Font</label>
+                                <select id="speaker-2-font" class="control-select font-select" data-speaker="2">
+                                    <option value="Impact">Impact</option>
+                                    <option value="Arial Black">Arial Black</option>
+                                    <option value="Bebas Neue">Bebas Neue</option>
+                                    <option value="Montserrat">Montserrat</option>
+                                    <option value="Roboto">Roboto</option>
+                                </select>
                             </div>
                             
-                            <!-- Second row: Font Size and Outline Thickness -->
-                            <div class="settings-row sliders-row">
-                                <div class="control-group">
-                                    <label for="speaker-2-font-size">Font Size</label>
-                                    <div class="slider-container">
-                                        <input type="range" id="speaker-2-font-size" class="control-slider font-size-slider" 
-                                               data-speaker="2" min="16" max="32" step="1" value="22">
-                                        <span class="slider-value">22px</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="speaker-2-outline-thickness">Outline Thickness</label>
-                                    <div class="slider-container">
-                                        <input type="range" id="speaker-2-outline-thickness" class="control-slider outline-thickness-slider" 
-                                               data-speaker="2" min="1" max="5" step="0.5" value="2">
-                                        <span class="slider-value">2px</span>
-                                    </div>
-                                </div>
+                            <div class="control-group">
+                                <label>Size</label>
+                                <input type="range" id="speaker-2-font-size" class="control-slider font-size-slider" 
+                                       data-speaker="2" min="16" max="32" step="1" value="22">
+                                <span class="slider-value">22px</span>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Fill</label>
+                                <button class="color-picker-button" data-speaker="2" data-color-type="fill" style="background-color: #00BFFF">
+                                    <span class="color-swatch"></span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Outline</label>
+                                <button class="color-picker-button" data-speaker="2" data-color-type="outline" style="background-color: #000000">
+                                    <span class="color-swatch"></span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Thickness</label>
+                                <input type="range" id="speaker-2-outline-thickness" class="control-slider outline-thickness-slider" 
+                                       data-speaker="2" min="1" max="5" step="0.5" value="2">
+                                <span class="slider-value">2px</span>
                             </div>
                         </div>
                         
-                        <button class="btn btn-secondary apply-all-btn" data-speaker="2">
-                            Apply Settings to All Speakers
-                        </button>
+                        <!-- Compact Preview -->
+                        <div class="caption-preview-inline" data-speaker="2">
+                            <span class="preview-text">Preview</span>
+                        </div>
                     </div>
                     
                     <div class="speaker-settings-panel" data-speaker="3">
-                        <div class="settings-compact">
-                            <!-- First row: Font, Fill Color, Outline Color -->
-                            <div class="settings-row">
-                                <div class="control-group">
-                                    <label for="speaker-3-font">Font</label>
-                                    <select id="speaker-3-font" class="control-select font-select" data-speaker="3">
-                                        <option value="Impact" style="font-family: Impact">Impact</option>
-                                        <option value="Arial Black" style="font-family: 'Arial Black'">Arial Black</option>
-                                        <option value="Bebas Neue" style="font-family: 'Bebas Neue'">Bebas Neue</option>
-                                        <option value="Montserrat" style="font-family: Montserrat">Montserrat</option>
-                                        <option value="Roboto" style="font-family: Roboto">Roboto</option>
-                                        <option value="Comic Sans MS" style="font-family: 'Comic Sans MS'">Comic Sans MS</option>
-                                    </select>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="speaker-3-fill-color">Fill Color</label>
-                                    <button class="color-picker-button" data-speaker="3" data-color-type="fill" style="background-color: #00FF88">
-                                        <span class="color-value">#00FF88</span>
-                                    </button>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="speaker-3-outline-color">Outline Color</label>
-                                    <button class="color-picker-button" data-speaker="3" data-color-type="outline" style="background-color: #000000">
-                                        <span class="color-value">#000000</span>
-                                    </button>
-                                </div>
+                        <div class="settings-grid">
+                            <div class="control-group">
+                                <label>Font</label>
+                                <select id="speaker-3-font" class="control-select font-select" data-speaker="3">
+                                    <option value="Impact">Impact</option>
+                                    <option value="Arial Black">Arial Black</option>
+                                    <option value="Bebas Neue">Bebas Neue</option>
+                                    <option value="Montserrat">Montserrat</option>
+                                    <option value="Roboto">Roboto</option>
+                                </select>
                             </div>
                             
-                            <!-- Second row: Font Size and Outline Thickness -->
-                            <div class="settings-row sliders-row">
-                                <div class="control-group">
-                                    <label for="speaker-3-font-size">Font Size</label>
-                                    <div class="slider-container">
-                                        <input type="range" id="speaker-3-font-size" class="control-slider font-size-slider" 
-                                               data-speaker="3" min="16" max="32" step="1" value="22">
-                                        <span class="slider-value">22px</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="control-group">
-                                    <label for="speaker-3-outline-thickness">Outline Thickness</label>
-                                    <div class="slider-container">
-                                        <input type="range" id="speaker-3-outline-thickness" class="control-slider outline-thickness-slider" 
-                                               data-speaker="3" min="1" max="5" step="0.5" value="2">
-                                        <span class="slider-value">2px</span>
-                                    </div>
-                                </div>
+                            <div class="control-group">
+                                <label>Size</label>
+                                <input type="range" id="speaker-3-font-size" class="control-slider font-size-slider" 
+                                       data-speaker="3" min="16" max="32" step="1" value="22">
+                                <span class="slider-value">22px</span>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Fill</label>
+                                <button class="color-picker-button" data-speaker="3" data-color-type="fill" style="background-color: #00FF88">
+                                    <span class="color-swatch"></span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Outline</label>
+                                <button class="color-picker-button" data-speaker="3" data-color-type="outline" style="background-color: #000000">
+                                    <span class="color-swatch"></span>
+                                </button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Thickness</label>
+                                <input type="range" id="speaker-3-outline-thickness" class="control-slider outline-thickness-slider" 
+                                       data-speaker="3" min="1" max="5" step="0.5" value="2">
+                                <span class="slider-value">2px</span>
                             </div>
                         </div>
                         
-                        <button class="btn btn-secondary apply-all-btn" data-speaker="3">
-                            Apply Settings to All Speakers
-                        </button>
-                    </div>
-                    
-                    <!-- Preview Section -->
-                    <div class="caption-preview-section">
-                        <h4>Preview</h4>
-                        <div class="caption-preview-wrapper">
-                            <div class="caption-preview" id="caption-preview">
-                                <span class="preview-text">Preview</span>
-                            </div>
+                        <!-- Compact Preview -->
+                        <div class="caption-preview-inline" data-speaker="3">
+                            <span class="preview-text">Preview</span>
                         </div>
                     </div>
                 </div>
@@ -469,5 +481,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', filename='js/caption-position-sync.js') }}"></script>
+<script src="{{ url_for('static', filename='js/caption-position-debug.js') }}"></script>
 <script src="{{ url_for('static', filename='js/edit.js') }}"></script>
 {% endblock %}

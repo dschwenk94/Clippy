@@ -1,0 +1,261 @@
+/* Caption Position Slider Styles */
+
+.video-container-with-slider {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+    justify-content: center;
+    position: relative;
+}
+
+/* Slider Wrapper */
+.caption-position-slider-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #2d2d2d;
+    border-radius: 8px;
+    padding: 15px 10px;
+    width: 80px;
+    height: 100%;
+    position: relative;
+}
+
+.slider-header {
+    font-size: 11px;
+    color: #999;
+    text-align: center;
+    margin-bottom: 15px;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Slider Track Container */
+.slider-track-container {
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    width: 100%;
+}
+
+.position-label {
+    font-size: 10px;
+    color: #666;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.position-label.top {
+    margin-bottom: 10px;
+}
+
+.position-label.bottom {
+    margin-top: 10px;
+}
+
+/* Slider Vertical Wrapper */
+.slider-vertical-wrapper {
+    position: relative;
+    width: 40px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+/* Vertical Slider */
+.vertical-slider {
+    width: 40px;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+    -webkit-appearance: slider-vertical;
+    writing-mode: bt-lr; /* IE/Edge */
+    transform: none;
+    background: transparent;
+    outline: none;
+    position: relative;
+}
+
+/* Fallback for browsers without native vertical slider */
+@supports not (-webkit-appearance: slider-vertical) {
+    .vertical-slider {
+        position: absolute;
+        width: 100%;
+        height: 30px;
+        transform: rotate(-90deg);
+        transform-origin: center;
+        top: 50%;
+        left: 50%;
+        margin-left: -50%;
+        margin-top: -15px;
+    }
+}
+
+.vertical-slider::-webkit-slider-track {
+    width: 8px;
+    height: 100%;
+    background: #1a1a1a;
+    border-radius: 4px;
+    border: 1px solid #333;
+}
+
+.vertical-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    background: #ff6b35;
+    border-radius: 50%;
+    cursor: grab;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 2px solid #fff;
+}
+
+.vertical-slider::-webkit-slider-thumb:hover {
+    background: #ff8c42;
+    transform: scale(1.1);
+}
+
+.vertical-slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* For Firefox */
+.vertical-slider::-moz-range-track {
+    width: 8px;
+    height: 100%;
+    background: #1a1a1a;
+    border-radius: 4px;
+    border: 1px solid #333;
+}
+
+.vertical-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    background: #ff6b35;
+    border-radius: 50%;
+    cursor: grab;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 2px solid #fff;
+    -moz-appearance: none;
+}
+
+.vertical-slider::-moz-range-thumb:hover {
+    background: #ff8c42;
+    transform: scale(1.1);
+}
+
+.vertical-slider::-moz-range-thumb:active {
+    cursor: grabbing;
+    transform: scale(0.95);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Video wrapper */
+.video-wrapper {
+    position: relative;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 100%;
+    flex: 1;
+}
+
+.video-player {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Caption position indicator */
+.caption-position-indicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #ff6b35;
+    opacity: 0.8;
+    pointer-events: none;
+    transition: top 0.2s ease;
+    box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+}
+
+.caption-position-indicator::before,
+.caption-position-indicator::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.caption-position-indicator::before {
+    left: 10px;
+    border-width: 5px 5px 5px 0;
+    border-color: transparent #ff6b35 transparent transparent;
+}
+
+.caption-position-indicator::after {
+    right: 10px;
+    border-width: 5px 0 5px 5px;
+    border-color: transparent transparent transparent #ff6b35;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .video-container-with-slider {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .caption-position-slider-wrapper {
+        width: 100%;
+        max-width: 360px;
+        flex-direction: row;
+        padding: 10px 15px;
+        height: auto;
+    }
+    
+    .slider-header {
+        margin-bottom: 0;
+        margin-right: 15px;
+        text-align: left;
+    }
+    
+    .slider-track-container {
+        flex-direction: row;
+        height: auto;
+        width: 100%;
+    }
+    
+    .vertical-slider {
+        writing-mode: initial;
+        -webkit-appearance: none;
+        width: 100%;
+        height: 30px;
+    }
+    
+    .position-label {
+        margin: 0 10px;
+    }
+    
+    .vertical-slider::-webkit-slider-track {
+        width: 100%;
+        height: 6px;
+    }
+    
+    .vertical-slider::-moz-range-track {
+        width: 100%;
+        height: 6px;
+    }
+}
