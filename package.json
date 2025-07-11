@@ -1,0 +1,23 @@
+{
+  "name": "clippy",
+  "version": "1.0.0",
+  "description": "AI-powered YouTube Shorts generator",
+  "scripts": {
+    "dev": "docker-compose up --build",
+    "dev:detached": "docker-compose up -d --build",
+    "stop": "docker-compose down",
+    "clean": "docker-compose down -v --rmi all",
+    "logs": "docker-compose logs -f clippy-app",
+    "shell": "docker-compose exec clippy-app bash",
+    "test": "docker-compose exec clippy-app python -m pytest",
+    "lint": "docker-compose exec clippy-app python -m flake8 .",
+    "format": "docker-compose exec clippy-app python -m black ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dschwenk94/Clippy.git"
+  },
+  "keywords": ["ai", "youtube", "video-processing", "shorts"],
+  "author": "DS",
+  "license": "MIT"
+}
