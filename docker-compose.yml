@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  clippy-app:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount source code for development
+      - ./:/app
+      - ./clips:/app/clips
+      - ./temp:/app/temp
+      - ./uploads:/app/uploads
+      # Preserve models and cache
+      - whisper_cache:/home/clippy/.cache/whisper
+      - pip_cache:/home/clippy/.cache/pip
+    environment:
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - PYTHONPATH=/app
+    networks:
+      - clippy-network
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - clippy-network
+    command: redis-server --appendonly yes
+
+volumes:
+  redis_data:
+  whisper_cache:
+  pip_cache:
+
+networks:
+  clippy-network:
+    driver: bridge
